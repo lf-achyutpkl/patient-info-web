@@ -197,6 +197,7 @@ class AddPatient extends Component{
 
       axios.post('http://localhost:8848/api/patients', patientInfo).then(({data}) => {
         this.setState({isLoading: false});
+        this.props.router.push('/');
       })
     })
   }
