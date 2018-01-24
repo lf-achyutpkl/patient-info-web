@@ -1,9 +1,9 @@
 import {
   Table,
+  TableRow,
   TableBody,
   TableHeader,
   TableHeaderColumn,
-  TableRow,
   TableRowColumn,
 } from 'material-ui/Table';
 import axios from 'axios';

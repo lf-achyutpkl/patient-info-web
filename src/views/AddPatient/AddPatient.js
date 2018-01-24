@@ -8,25 +8,7 @@ import {GridList, GridTile} from 'material-ui/GridList';
 import LinearProgress from 'material-ui/LinearProgress';
 import {RadioButton, RadioButtonGroup} from 'material-ui/RadioButton';
 
-const styles = {
-  block: {
-    maxWidth: 250,
-  },
-  radioButton: {
-    display: 'inline-block',
-    marginBottom: 16
-  },
-  root: {
-    display: 'flex',
-    flexWrap: 'wrap',
-    justifyContent: 'space-around',
-  },
-  gridList: {
-    width: 500,
-    height: 450,
-    overflowY: 'auto',
-  },
-};
+import styles from './styles';
 
 class AddPatient extends Component{
 
