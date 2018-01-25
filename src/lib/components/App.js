@@ -1,5 +1,5 @@
 import React from 'react';
-import ImageAnnotationEdit from '../../lib/components/ImageAnnotationEdit';
+import ImageAnnotationEdit from './ImageAnnotationEdit';
 
 export default props => {
   let data = {
@@ -65,7 +65,6 @@ export default props => {
   let data_ = JSON.parse(localStorage.getItem('annData'));
 
   const update = (data) => {
-      console.log(data)
       localStorage.setItem('annData', JSON.stringify(data));
   };
 
