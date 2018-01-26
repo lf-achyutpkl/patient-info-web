@@ -5,6 +5,7 @@ import {Router, Route, browserHistory} from 'react-router';
 import AddPatient from './views/AddPatient';
 import Dashboard from './views/Dashboard';
 import Annotate from './views/Annotate';
+import Annotates from './views/Annotations';
 import BatchUpload from './views/BatchUpload';
 
 let routes = (
@@ -12,6 +13,7 @@ let routes = (
     <Route path={'/'} component={Dashboard} />
     <Route path={'/addPatient'} component={AddPatient}/>
     <Route path={'/annotate'} component={Annotate}/>
+    <Route path={'/annotations'} component={Annotates}/>
     <Route path={'/batchUpload'} component={BatchUpload}/>
   </Router>
 );
