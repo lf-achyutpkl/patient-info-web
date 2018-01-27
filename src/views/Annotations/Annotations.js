@@ -16,8 +16,6 @@ import DropDownMenu from 'material-ui/DropDownMenu';
 import {uri} from '../../config/uri';
 import {get} from '../../utils/httpUtils';
 
-import ReactTable from "react-table";
-
 class Annotations extends Component{
 
   constructor(){
