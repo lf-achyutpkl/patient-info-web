@@ -24,7 +24,7 @@ class Annotations extends Component{
     super();
 
     this.state = {
-      defaultShowAnnotationValue: 'All',
+      defaultShowAnnotationValue: 'all',
       pagination: {
         page: 1,
         pageSize: 20,
@@ -42,6 +42,12 @@ class Annotations extends Component{
   render(){
     return(
       <div>
+        <DropDownMenu value={this.state.defaultShowAnnotationValue} onChange={this._handleDropDownChange}>
+          <MenuItem value={'all'} primaryText="Display All Images" />
+          <MenuItem value={'true'} primaryText="Display Annotated Images" />
+          <MenuItem value={'false'} primaryText="Display Images Without Annotation" />
+        </DropDownMenu>
+
         <Table>
           <TableHeader adjustForCheckbox={false} displaySelectAll={false}>
             <TableRow>
@@ -105,6 +111,12 @@ class Annotations extends Component{
     this.setState({pagination}, () => {
       this._fetchData();
     })
+  }
+
+  _handleDropDownChange = (event, index, value) => {
+    this.setState({defaultShowAnnotationValue: value}, () => {
+      this._fetchData();
+    });
   }
 }
 
