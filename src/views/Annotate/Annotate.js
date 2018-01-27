@@ -1,90 +1,82 @@
-import React from 'react';
-import {baseUrl} from '../../config/uri';
+import React, {Component} from 'react';
+import {get, put} from '../../utils/httpUtils';
+import {baseUrl, uri} from '../../config/uri';
 import ImageAnnotationEdit from '../../lib/components/ImageAnnotationEdit';
 
-export default props => {
+const IMAGE_WIDTH = 800;
+const IMAGE_HEIGHT = 600;
+const OPTIONS = [
+  'Microaneurysm',
+  'Haemorrhages',
+  'Venous bedding ',
+  'Intraretinal microvascular abnormalities(IRMA)',
+  'New vessels at the disc (NVD)',
+  'New vessels elsewhere (NVE)',
+  'Vitreous haemorrhage',
+  'Pre retinal haemorrrhage',
+  'Hard exudates',
+  'Retinal thickening',
+];
 
-	let imageUrl = "http://www.ultrahdfreewallpapers.com/uploads/large/animals/cat-hd-wallpaper-0380.jpg";
-	if(props.location.query.image){
-		imageUrl = baseUrl + props.location.query.image;
-	}
+class AnnotateEditor extends Component {
 
-  let data = {
-      "items": {
-          "1516645519674": {
-              "id": 1516645519674,
-              "type": "rectangle",
-              "left": 111.44278606965175,
-              "top": 58.609271523178805,
-              "width": 176.11940298507466,
-              "height": 70.52980132450331,
-              "angle": 0,
-              "scaleX": 1,
-              "scaleY": 1
-          },
-          "1516645525740": {
-              "id": 1516645525740,
-              "type": "rectangle",
-              "left": 400,
-              "top": 102.31788079470198,
-              "width": 75.62189054726372,
-              "height": 50.66225165562915,
-              "angle": 0,
-              "scaleX": 1,
-              "scaleY": 1,
-              "caption": "bbb"
-          },
-          "1516645533083": {
-              "id": 1516645533083,
-              "type": "circle",
-              "left": 126.3681592039801,
-              "top": 110.15123060195711,
-              "radius": 68.65671641791045,
-              "angle": 0,
-              "scaleX": 1,
-              "scaleY": 1
-          },
-          "1516645546106": {
-              "id": 1516645546106,
-              "type": "circle",
-              "left": 485.5721393034826,
-              "top": 45.59322592336329,
-              "radius": 61.69154228855723,
-              "angle": 0,
-              "scaleX": 1,
-              "scaleY": 1
-          },
-          "1516646276194": {
-              "id": 1516646276194,
-              "type": "rectangle",
-              "left": 327.363184079602,
-              "top": 248.34437086092714,
-              "width": 118.407960199005,
-              "height": 73.50993377483445,
-              "angle": 0,
-              "scaleX": 1,
-              "scaleY": 1,
-              "caption": "asdad"
-          }
+    constructor(props){
+        super(props);
+
+        this.state = {
+          isLoading: true,
+          annotationId: props.location.query.id,
+          annotation: {},
+          imageUrl: "http://www.ultrahdfreewallpapers.com/uploads/large/animals/cat-hd-wallpaper-0380.jpg"
+        }
+    }
+
+    componentDidMount(){
+      if(this.state.annotationId){
+        get(`${uri.annotation}/${this.state.annotationId}`)
+          .then(response => {
+            let imageUrl = baseUrl + response.data.imageName;
+            console.log(this.state.annotation.annotationInfo)
+            this.setState({annotation: response.data, imageUrl, isLoading: false});
+          })
       }
+    }
+
+    /**
+     * ImageAnnotationEdit Props:
+     * imageURL
+     * height
+     * width
+     * update
+     * data
+     * options
+     */
+    render(){
+      if(this.state.isLoading){
+        return 'loading.....'
+      }
+
+      return (
+        <div>
+          <ImageAnnotationEdit
+            imageURL={this.state.imageUrl}
+            height={IMAGE_HEIGHT}
+            width={IMAGE_WIDTH}
+            update={this.update}
+            data={JSON.parse(this.state.annotation.annotationInfo || null)}
+            options={OPTIONS}
+          />
+        </div>
+      );
+    }
+
+  update = (data) => {
+    let annotation = {...this.state.annotation, annotationInfo: JSON.stringify(data)};
+    // this.setState({annotation}, () => {
+      put(`${uri.annotation}/${this.state.annotationId}`, annotation);
+    // })
+
   };
-
-  let data_ = JSON.parse(localStorage.getItem('annData'));
-
-  const update = (data) => {
-      console.log(data)
-      localStorage.setItem('annData', JSON.stringify(data));
-  };
-
-  return (
-    <div>
-      <ImageAnnotationEdit
-        imageURL={imageUrl}
-        height={600}
-        width={800}
-        data={data_}
-        update={update}
-      />
-    </div>
-  );
 };
+
+export default AnnotateEditor;

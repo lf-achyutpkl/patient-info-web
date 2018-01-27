@@ -1,5 +1,3 @@
-import { fabric } from 'fabric';
-
 export default class Shape {
   constructor(props) {
     this.isListening = false;
@@ -8,7 +6,7 @@ export default class Shape {
     this.y = 0;
     this.r = 0;
     this.canvas = props.canvas;
-    this.captionController = props.captionController;
+    this.showAnnCreateModal = props.showAnnCreateModal;
     this.eventController = props.eventController;
 
     this.init = this.init.bind(this);

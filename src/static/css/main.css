@@ -1,198 +1,6 @@
-#canvas {
-  position: absolute;
-  border: 2px solid grey;
-}
-
-#subjectImage {
-  position: absolute;
-}
-
-.tooltip-modal{
-  position: absolute;
-  height: 100px;
-  width: 100px;
-  background: #333333;
-  display: none;
-  z-index: 999;
-
-  color: white;
-  border-radius: 20px;
-  padding: 10px;
-}
-
-.tooltip-modal:hover{
-  display: block
-}
-
-.annotorious-editor{
-  opacity: 0;
-  position: absolute;
-  top: 0;
-  left: 0;
-  margin-top: 12px;
-  background-color: #383838;
-  color: #F2F2F2;
-  border: 1px solid #000;
-  border-radius: 8px;
-  -o-border-radius: 8px;
-  -moz-border-radius: 8px;
-  -webkit-border-radius: 8px;
-  -khtml-border-radius: 8px;
-  -o-box-shadow: 0 5px 5px rgba(0,0,0,0.7),inset 0 1px 1px rgba(255,255,255,0.25);
-  -ms-box-shadow: 0 5px 5px rgba(0,0,0,0.7),inset 0 1px 1px rgba(255,255,255,0.25);
-  -moz-box-shadow: 0 5px 5px rgba(0,0,0,0.7),inset 0 1px 1px rgba(255,255,255,0.25);
-  -webkit-box-shadow: 0 5px 5px rgba(0,0,0,0.7), inset 0 1px 1px rgba(255,255,255,0.25);
-  box-shadow: 0 5px 53px rgba(0,0,0,0.7), inset 0 1px 1px rgba(255,255,255,0.25);
-}
-
-.editor-wrp{
-  opacity: 0;
-  background: red;
-  position: absolute;
-  /* top: 0; */
-  /* left: 0; */
-  /* z-index: 2; */
-}
-
-.editor-wrp:hover .annotorious-editor{
-  /* display: block; */
-  /* opacity: 1 !important; */
-  /* pointer-events: auto !important; */
-}
-
-/* .editor-wrp:hover{
-  background: blue;
-  opacity: 1 !important;
-  pointer-events: auto !important;
-} */
-
-.annotorious-editor:hover{
-  opacity: 1 !important;
-  pointer-events: auto !important;
-}
-
-.annotorious-editor:after {
-  /* content:url(Indicator.png); */
-  position:absolute;
-  left:15px;
-  top:-14px;
-  height:18px;
-  width:19px;
-  display:block;
-}
-
-.annotorious-editor-text{
-  border: none;
-  background-color: #383838;
-  line-height: 150%;
-  margin: 10px 0px 4px 0px;
-  padding: 0px 10px;
-  min-height: 50px;
-  width: 100%;
-  min-width: 200px;
-  outline: none;
-  font-family: Verdana,Arial;
-  font-weight: 400;
-  font-size: 12px;
-  color: #eee;
-  text-shadow: none;
-  overflow-y: auto;
-  display: block;
-  resize: none;
-  -moz-box-shadow: none !important;
-  -webkit-box-shadow: none !important;
-  box-shadow: none !important;
-}
-
-.annotorious-editor-text a:hover {
-  color:#eee;
-  background-color:transparent;
-}
-
-.goog-textarea{
-
-}
-
-.annotorious-editor-button-container{
-  /* background: url(DarkSprite.png); */
-  background-position: 0 -1px;
-  margin: 0 10px 10px;
-  background-repeat: repeat-x;
-  height: 2px;
-  display: block;
-}
-
-.annotorious-editor-button{
-  float: right;
-  line-height: normal;
-  display: inline-block;
-  text-align: center;
-  text-decoration: none;
-  font-family: Verdana,Arial;
-  font-size: .625em;
-  border: 1px solid #000;
-  color: #f2f2f2;
-  padding-top: 5px;
-  padding-bottom: 5px;
-  margin: 7px 2px 10px 0px;
-  cursor: pointer;
-  width: 60px;
-  -moz-box-shadow: inset 0 1px 1px rgba(255,255,255,0.25),0 1px 1px rgba(255,255,255,0.25);
-  -webkit-box-shadow: inset 0 1px 1px rgba(255,255,255,0.25), 0 1px 1px rgba(255,255,255,0.25);
-  box-shadow: inset 0 1px 1px rgba(255,255,255,0.25), 0 1px 1px rgba(255,255,255,0.25);
-  -moz-border-radius: 3px;
-  -webkit-border-radius: 3px;
-  -khtml-border-radius: 3px;
-  border-radius: 3px;
-  opacity: 1;
-}
-
-.annotorious-editor-button-cancel{
-  background: -webkit-gradient(linear,left top,left bottom,from(#656565),to(#2C2C2C));
-  background: -moz-linear-gradient(top,#656565,#2C2C2C);
-  filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#656565',endColorstr='#2C2C2C');
-}
-
-.annotorious-editor-button-save{
-  margin-left: 5px;
-  background: -webkit-gradient(linear,left top,left bottom,from(#FFA52C),to(#FB7B28));
-  background: -moz-linear-gradient(top,#FFA52C,#FB7B28);
-  filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#FFA52C',endColorstr='#FB7B28');
-}
-
-.annotorious-editor-button:hover {
-  color:rgba(242,2423,242,1);
-  text-shadow:0 0 6px rgba(242,242,242,0.6);
-  -o-text-shadow:0 0 6px rgba(242,242,242,0.6);
-  -moz-text-shadow:0 0 6px rgba(242,242,242,0.6);
-  -webkit-text-shadow:0 0 6px rgba(242,242,242,0.6);
-}
-
-.annotorious-editor-button:active {
-  -moz-box-shadow:inset 0 3px 3px rgba(0,0,0,0.7),0 1px 1px rgba(255,255,255,0.25);
-  -webkit-box-shadow:inset 0 3px 3px rgba(0,0,0,0.7),0 1px 1px rgba(255,255,255,0.25);
-  box-shadow:inset 0 3px 3px rgba(0,0,0,0.7),0 1px 1px rgba(255,255,255,0.25);
-}
-
-.annotorious-editor-field {
-  margin:0px;
-  padding:6px 0px;
-  font-family:'lucida grande',tahoma,verdana,arial,sans-serif;
-  font-size:12px;
-}
-
-.annotorious-editor:after {
-  content: url('https://annotorious.github.io/latest/themes/dark/Indicator.png');
-  position: absolute;
-  left: 15px;
-  top: -14px;
-  height: 18px;
-  width: 19px;
-  display: block;
-}
-
 .image-annotation-wrapper {
   position: relative;
+  display: table;
 }
 
 .image-annotation-wrapper canvas {
@@ -214,7 +22,7 @@
   z-index: 1;
 }
 
-.annotorious-editor{
+.image-annotation-selection {
   opacity: 0;
   position: absolute;
   top: 0;
@@ -228,9 +36,45 @@
   -moz-border-radius: 8px;
   -webkit-border-radius: 8px;
   -khtml-border-radius: 8px;
-  -o-box-shadow: 0 5px 5px rgba(0,0,0,0.7),inset 0 1px 1px rgba(255,255,255,0.25);
-  -ms-box-shadow: 0 5px 5px rgba(0,0,0,0.7),inset 0 1px 1px rgba(255,255,255,0.25);
-  -moz-box-shadow: 0 5px 5px rgba(0,0,0,0.7),inset 0 1px 1px rgba(255,255,255,0.25);
-  -webkit-box-shadow: 0 5px 5px rgba(0,0,0,0.7), inset 0 1px 1px rgba(255,255,255,0.25);
-  box-shadow: 0 5px 53px rgba(0,0,0,0.7), inset 0 1px 1px rgba(255,255,255,0.25);
+  -o-box-shadow: 0 5px 5px rgba(0, 0, 0, 0.7), inset 0 1px 1px rgba(255, 255, 255, 0.25);
+  -ms-box-shadow: 0 5px 5px rgba(0, 0, 0, 0.7), inset 0 1px 1px rgba(255, 255, 255, 0.25);
+  -moz-box-shadow: 0 5px 5px rgba(0, 0, 0, 0.7), inset 0 1px 1px rgba(255, 255, 255, 0.25);
+  -webkit-box-shadow: 0 5px 5px rgba(0, 0, 0, 0.7), inset 0 1px 1px rgba(255, 255, 255, 0.25);
+  box-shadow: 0 5px 53px rgba(0, 0, 0, 0.7), inset 0 1px 1px rgba(255, 255, 255, 0.25);
+  padding: 4px;
+}
+
+.image-annotation-selection > p {
+  display: inline-block;
+  margin: 0;
+}
+.image-annotation-selection > button {
+  display: inline-block;
+  margin-left: 4px;
+}
+
+.image-annotation-selection ul {
+  margin: 4px 0;
+  padding: 4px;
+  background: #eee;
+  color: #000000;
+  max-height: 100px;
+  overflow-y: scroll;
+}
+
+.image-annotation-selection ul li {
+  list-style-type: none;
+}
+
+.image-annotation-selection input {
+  width: 100%;
+  border-radius: 2px;
+  box-shadow: none;
+  border: 1px solid #ccc;
+  margin: 0;
+  padding: 2px;
+}
+
+.edit-button{
+  color: black;
 }

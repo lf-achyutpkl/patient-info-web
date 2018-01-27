@@ -73,24 +73,28 @@ class Annotations extends Component{
             }
           </TableBody>
         </Table>
-        <nav aria-label="Pagination">
-          <ul className="pagination">
-            {
-              this.state.pagination.page != 1 &&
-              <li className="page-item">
-                <a className="page-link" href="#" onClick={() => this._onClickPagination(this.state.pagination.page - 1)}>Previous</a>
-              </li>
-            }
-            <li className="page-item disabled"><a className="page-link" href="#">Total: {this.state.pagination.rowCount}</a></li>
 
-            {
-              this.state.pagination.page != this.state.pagination.pageCount &&
-              <li className="page-item">
-                <a className="page-link" href="#" onClick={() => this._onClickPagination(this.state.pagination.page + 1)}>Next</a>
-              </li>
-            }
-          </ul>
-        </nav>
+        {
+          this.state.annotations.length != 0 &&
+          <nav aria-label="Pagination">
+            <ul className="pagination">
+              {
+                this.state.pagination.page != 1 &&
+                <li className="page-item">
+                  <a className="page-link" href="#" onClick={() => this._onClickPagination(this.state.pagination.page - 1)}>Previous</a>
+                </li>
+              }
+              <li className="page-item disabled"><a className="page-link" href="#">Total: {this.state.pagination.rowCount}</a></li>
+
+              {
+                this.state.pagination.page != this.state.pagination.pageCount &&
+                <li className="page-item">
+                  <a className="page-link" href="#" onClick={() => this._onClickPagination(this.state.pagination.page + 1)}>Next</a>
+                </li>
+              }
+            </ul>
+          </nav>
+        }
       </div>
     );
   }

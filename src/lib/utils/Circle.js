@@ -1,5 +1,5 @@
-import Shape from './Shape';
-import { fabric } from 'fabric';
+import Shape from "./Shape";
+import { fabric } from "fabric";
 
 export default class Circle extends Shape {
   mousedown(e) {
@@ -13,8 +13,8 @@ export default class Circle extends Shape {
       height: 0,
       left: this.x,
       top: this.y,
-      fill: 'transparent',
-      stroke: 'red',
+      fill: "transparent",
+      stroke: "red"
     });
 
     this.canvas.renderAll();
@@ -35,8 +35,8 @@ export default class Circle extends Shape {
     }
 
     let circle = this.canvas.getActiveObject();
-    circle.set('radius', w);
-    circle.set('top', this.y - w).set('left', this.x - w);
+    circle.set("radius", w);
+    circle.set("top", this.y - w).set("left", this.x - w);
     this.canvas.renderAll();
   }
 
@@ -49,7 +49,7 @@ export default class Circle extends Shape {
     if (!circle) return;
 
     if (circle.height != 0 && circle.width != 0) {
-      let caption = this.captionController.displayAddCaptionForm(e);
+      let caption = this.showAnnCreateModal(e);
       if (caption) {
         circle.caption = caption;
         this.canvas.add(circle);
@@ -57,7 +57,7 @@ export default class Circle extends Shape {
       }
     }
     let id = new Date().getTime();
-    circle.set('itemId', id);
+    circle.set("itemId", id);
 
     this.canvas.discardActiveObject();
     this.canvas.renderAll();
@@ -66,13 +66,13 @@ export default class Circle extends Shape {
     if (this.afterDraw)
       this.afterDraw({
         id: id,
-        type: 'circle',
+        type: "circle",
         left: circle.left,
         top: circle.top,
         radius: circle.radius,
         angle: circle.angle,
         scaleX: circle.scaleX,
-        scaleY: circle.scaleY,
+        scaleY: circle.scaleY
       });
   }
 }

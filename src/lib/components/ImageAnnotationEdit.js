@@ -1,6 +1,5 @@
 import React from 'react';
 
-import CaptionController from '../utils/CaptionController';
 import EventController from '../utils/EventController';
 import Rectangle from '../utils/Rectangle';
 import Circle from '../utils/Circle';
@@ -16,13 +15,16 @@ export default class ImageAnnotationEdit extends React.Component {
     this.data = {
       items: [],
     };
-    this.annModal = {
-      position: {
-        left: 0,
-        top: 0,
+    this.state = {
+      annModal: {
+        position: {
+          left: 0,
+          top: 0,
+        },
+        display: 'none',
+        text: '',
+        searchText: '',
       },
-      elem: null,
-      inputElem: null,
     };
     this.selectedItemId = null;
 
@@ -38,10 +40,17 @@ export default class ImageAnnotationEdit extends React.Component {
     this.saveAnn = this.saveAnn.bind(this);
     this.resetState = this.resetState.bind(this);
     this.init = this.init.bind(this);
+    this.mouseOut = this.mouseOut.bind(this);
+    this.enableAnnModalEdit = this.enableAnnModalEdit.bind(this);
+    this.showAnnCreateModal = this.showAnnCreateModal.bind(this);
+    this.handleAnnModalSearchChange = this.handleAnnModalSearchChange.bind(
+      this,
+    );
+    this.getOptions = this.getOptions.bind(this);
   }
 
   componentDidMount() {
-   this.init();
+    this.init();
   }
 
   componentWillReceiveProps() {
@@ -49,77 +58,70 @@ export default class ImageAnnotationEdit extends React.Component {
   }
 
   init() {
-      let canvas = new fabric.Canvas(this.canvasElement);
+    let canvas = new fabric.Canvas(this.canvasElement);
 
-      canvas.observe('object:selected', function(e) {
-          if (e.target.caption) {
-              console.log(e.target.caption, 111);
-          }
-      });
+    canvas.observe('object:selected', function(e) {
+      if (e.target.caption) {
+        console.log(e.target.caption, 111);
+      }
+    });
 
-      canvas.on('mouse:over', e => {
-          let itemId = e.target.itemId;
-          if (!itemId) this.hideAnnModal();
+    canvas.on('mouse:over', e => {
+      let itemId = e.target.itemId;
 
-          this.showAnnModal(itemId);
-      });
+      this.showAnnModal(itemId);
+    });
 
-      canvas.on('mouse:out', e => {
-          this.hideAnnModal();
-      });
+    canvas.on('mouse:out', ({ e }) => {});
 
-      canvas.on('object:rotating', e => {
-          let itemId = e.target.itemId;
-          if (!itemId) return;
+    canvas.on('object:rotating', e => {
+      let itemId = e.target.itemId;
+      if (!itemId) return;
 
-          this.updateItem(itemId, e);
-      });
+      this.updateItem(itemId, e);
+    });
 
-      canvas.on('object:moving', e => {
-          let itemId = e.target.itemId;
-          if (!itemId) return;
-          this.updateItem(itemId, e);
-      });
+    canvas.on('object:moving', e => {
+      let itemId = e.target.itemId;
+      if (!itemId) return;
+      this.updateItem(itemId, e);
+    });
 
-      canvas.on('object:scaling', e => {
-          let itemId = e.target.itemId;
-          if (!itemId) return;
-          this.updateItem(itemId, e);
-      });
+    canvas.on('object:scaling', e => {
+      let itemId = e.target.itemId;
+      if (!itemId) return;
+      this.updateItem(itemId, e);
+    });
 
-      let annModal = {
-          ...this.annModal,
-          elem: this.$annModal,
-          inputElem: this.$annModalInput,
-      };
+    let showAnnCreateModal = this.showAnnCreateModal;
 
-      let captionController = new CaptionController({ modal: this.$annModal });
+    let rectangle = new Rectangle({
+      canvas,
+      showAnnCreateModal,
+      eventController,
+    });
+    let circle = new Circle({
+      canvas,
+      showAnnCreateModal,
+      eventController,
+    });
 
-      let rectangle = new Rectangle({
-          canvas,
-          captionController,
-          eventController,
-      });
-      let circle = new Circle({ canvas, captionController, eventController });
+    rectangle.init({
+      afterDraw: this.addItem,
+    });
 
-      rectangle.init({
-          afterDraw: this.addItem,
-      });
+    circle.init({
+      afterDraw: this.addItem,
+    });
 
-      circle.init({
-          afterDraw: this.addItem,
-      });
-
-      this.canvas = canvas;
-      this.annModal = annModal;
-      this.rectangle = rectangle;
-      this.circle = circle;
-      this.captionController = captionController;
-      this.loadState();
+    this.canvas = canvas;
+    this.rectangle = rectangle;
+    this.circle = circle;
+    this.loadState();
   }
 
   shouldComponentUpdate(props, nextState) {
-    return nextState.resetComponentState;
+    return true;
   }
 
   enableDrawRect() {
@@ -143,17 +145,30 @@ export default class ImageAnnotationEdit extends React.Component {
     });
   }
 
+  enableAnnModalEdit() {
+    let annModal = {
+      ...this.state.annModal,
+      isEdit: true,
+    };
+    this.setState({ annModal });
+  }
+
+  mouseOut(e) {
+    if (!this.elem.contains(e.relatedTarget)) {
+      this.hideAnnModal();
+    }
+  }
+
   hideAnnModal() {
     console.log('hide modal');
     let selectedItemId = null;
-    let annModal = { ...this.annModal };
-
-    annModal.elem.style.opacity = 0;
-    annModal.elem.style.pointerEvents = 'none';
-    annModal.inputElem.value = null;
-
-    this.annModal = annModal;
     this.selectedItemId = selectedItemId;
+
+    let annModal = { ...this.state.annModal };
+    annModal.text = '';
+    annModal.display = 'none';
+    annModal.searchText = '';
+    this.setState({ annModal });
   }
 
   showAnnModal(itemId) {
@@ -161,36 +176,48 @@ export default class ImageAnnotationEdit extends React.Component {
     console.log(itemId, this.data);
 
     let selectedItemId = itemId;
+    this.selectedItemId = selectedItemId;
 
     let item = this.data.items[itemId];
     if (!item) return;
     let { top, left, height, caption } = item;
 
-    let annModal = { ...this.annModal };
-    annModal.position.top = top;
+    let annModal = { ...this.state.annModal };
+    annModal.position.top = top + height;
     annModal.position.left = left;
+    annModal.text = caption;
+    annModal.display = 'block';
+    annModal.isEdit = !caption;
+    annModal.searchText = '';
 
-    annModal.elem.style.left = left + 'px';
-    annModal.elem.style.top = top + height - 7 + 'px';
-    annModal.elem.style.opacity = 1;
-    annModal.elem.style.pointerEvents = 'auto';
-
-    annModal.inputElem.value = caption || null;
-
-    this.annModal = annModal;
-    this.selectedItemId = selectedItemId;
+    this.setState({ annModal });
   }
 
-  saveAnn() {
-    if (!this.selectedItemId) return;
-    let item = this.data.items[this.selectedItemId];
-    if (!item) return;
+  showAnnCreateModal(e) {
+    let annModal = { ...this.state.annModal };
+    annModal.position.top = e.target.top + e.target.height;
+    annModal.position.left = e.target.left;
+    annModal.text = '';
+    annModal.display = 'block';
+    annModal.isEdit = true;
 
-    this.data.items[this.selectedItemId][
-      'caption'
-    ] = this.annModal.inputElem.value;
+    this.setState({ annModal });
 
-    this.hideAnnModal();
+    if (true) {
+      return 'asdas';
+    } else {
+      return null;
+    }
+  }
+
+  saveAnn(option) {
+    return () => {
+      if (!this.selectedItemId) return;
+      let item = this.data.items[this.selectedItemId];
+      if (!item) return;
+      this.data.items[this.selectedItemId]['caption'] = option;
+      this.hideAnnModal();
+    };
   }
 
   resetState() {
@@ -225,11 +252,11 @@ export default class ImageAnnotationEdit extends React.Component {
   }
 
   loadState() {
-    let data = this.props.data;
+    let data = this.props.data || {items: {}};
 
     let lastId = this.lastId;
 
-    Object.keys(data.items) && Object.keys(data.items).forEach(itemId => {
+    Object.keys(data.items).forEach(itemId => {
       let item = data.items[itemId];
       let shape = null;
 
@@ -269,9 +296,30 @@ export default class ImageAnnotationEdit extends React.Component {
     this.data = data;
   }
 
+  handleAnnModalSearchChange(e) {
+    let annModal = { ...this.state.annModal, searchText: e.target.value };
+    this.setState({ annModal });
+  }
+
+  getOptions() {
+    return this.props.options.filter(option => {
+      return (
+        option
+          .toLowerCase()
+          .indexOf(this.state.annModal.searchText.toLowerCase()) > -1
+      );
+    });
+  }
+
   render() {
+    let { annModal } = this.state;
+
     return (
-      <div className="image-annotation-wrapper">
+      <div
+        className="image-annotation-wrapper"
+        ref={e => (this.elem = e)}
+        onMouseOut={this.mouseOut}
+      >
         <div className="image-annotation-toolbar">
           <button onClick={this.enableDrawRect}>Draw Rectangle</button>
           <button onClick={this.enableDrawCircle}>Draw Circle</button>
@@ -293,63 +341,38 @@ export default class ImageAnnotationEdit extends React.Component {
           }}
         />
         <div
-          className="annotorious-editor"
-          ref={input => {
-            this.$annModal = input;
-          }}
+          className="image-annotation-selection"
           style={{
             position: 'absolute',
             zIndex: 1,
-            left: '0px',
-            top: '0px',
-            pointerEvents: 'none',
+            left: annModal.position.left,
+            top: annModal.position.top,
+            display: annModal.display,
+            opacity: 1,
           }}
         >
-          <form>
-            <textarea
-              className="annotorious-editor-text goog-textarea"
-              placeholder="Add a Comment..."
-              tabIndex="1"
-              style={{
-                overflowY: 'hidden',
-                overflowX: 'auto',
-                boxSizing: 'border-box',
-                height: '17px',
-                paddingBottom: '0px',
-              }}
-              rows="1"
-              ref={input => {
-                this.$annModalInput = input;
-              }}
-            />
-            <div className="annotorious-editor-button-container">
-              <a
-                className="annotorious-editor-button annotorious-editor-button-cancel"
-                href="javascript:void(0);"
-                tabIndex="3"
-              >
-                Delete
-              </a>
-              <a
-                className="annotorious-editor-button annotorious-editor-button-save"
-                href="javascript:void(0);"
-                tabIndex="2"
-                onClick={this.saveAnn}
-              >
-                Save
-              </a>
-            </div>
-          </form>
-          <div
-            style={{
-              position: 'absolute',
-              top: '0px',
-              right: '0px',
-              width: '5px',
-              height: '100%',
-              cursor: 'e-resize',
-            }}
-          />
+          <p>{annModal.text}</p>
+          {!annModal.isEdit && (
+            <button className="edit-button" onClick={this.enableAnnModalEdit}>Edit</button>
+          )}
+          {annModal.isEdit && (
+            <ul>
+              <li>
+                <input
+                  type="text"
+                  value={annModal.searchText}
+                  onChange={this.handleAnnModalSearchChange}
+                />
+              </li>
+              {this.getOptions().map((option, index) => {
+                return (
+                  <li key={index} onClick={this.saveAnn(option)}>
+                    {option}
+                  </li>
+                );
+              })}
+            </ul>
+          )}
         </div>
       </div>
     );

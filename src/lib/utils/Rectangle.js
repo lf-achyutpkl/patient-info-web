@@ -1,5 +1,5 @@
-import Shape from './Shape';
-import { fabric } from 'fabric';
+import Shape from "./Shape";
+import { fabric } from "fabric";
 
 export default class Rectangle extends Shape {
   mousedown(e) {
@@ -13,8 +13,8 @@ export default class Rectangle extends Shape {
       height: 0,
       left: this.x,
       top: this.y,
-      fill: 'transparent',
-      stroke: 'red',
+      fill: "transparent",
+      stroke: "red"
     });
 
     this.canvas.renderAll();
@@ -45,11 +45,11 @@ export default class Rectangle extends Shape {
     if (!w || !h) {
       return false;
     }
-    console.log('aaaaa');
+    console.log("aaaaa");
 
     let square = this.canvas.getActiveObject();
-    square.set('width', w).set('height', h);
-    square.set('top', initialTop).set('left', initialLeft);
+    square.set("width", w).set("height", h);
+    square.set("top", initialTop).set("left", initialLeft);
     this.canvas.renderAll();
   }
 
@@ -68,7 +68,7 @@ export default class Rectangle extends Shape {
 
     if (square.height != 0 && square.width != 0) {
       //caption
-      let caption = this.captionController.displayAddCaptionForm(e);
+      let caption = this.showAnnCreateModal(e);
       if (caption) {
         square.caption = caption;
         this.canvas.add(square);
@@ -76,7 +76,7 @@ export default class Rectangle extends Shape {
       }
     }
     let id = new Date().getTime();
-    square.set('itemId', id);
+    square.set("itemId", id);
 
     this.canvas.discardActiveObject();
     this.canvas.renderAll();
@@ -85,14 +85,14 @@ export default class Rectangle extends Shape {
     if (this.afterDraw)
       this.afterDraw({
         id: id,
-        type: 'rectangle',
+        type: "rectangle",
         left: square.left,
         top: square.top,
         width: square.width,
         height: square.height,
         angle: square.angle,
         scaleX: square.scaleX,
-        scaleY: square.scaleY,
+        scaleY: square.scaleY
       });
   }
 }

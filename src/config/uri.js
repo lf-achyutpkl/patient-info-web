@@ -7,4 +7,5 @@ export const uri = {
   images: `${apiUrl}annotations`,
   uploadImages: `${apiUrl}patients/images`,
   patients: `${apiUrl}patients`,
+  annotation: `${apiUrl}annotations`
 }
