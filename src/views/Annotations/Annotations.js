@@ -65,7 +65,7 @@ class Annotations extends Component{
                     <TableRowColumn>{`${annotation.annotationInfo != ''}`}</TableRowColumn>
                     <TableRowColumn>{annotation.tags}</TableRowColumn>
                     <TableRowColumn>{annotation.remarks}</TableRowColumn>
-                    <TableRowColumn><Link to={`/annotate?image=${annotation.imageName}`} target="_blank">Annotate</Link></TableRowColumn>
+                    <TableRowColumn><Link to={`/annotate?id=${annotation.id}`} target="_blank">Annotate</Link></TableRowColumn>
                   </TableRow>
                 )
             }
