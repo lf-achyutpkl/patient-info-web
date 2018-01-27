@@ -1,7 +1,14 @@
 import React from 'react';
+import {baseUrl} from '../../config/uri';
 import ImageAnnotationEdit from '../../lib/components/ImageAnnotationEdit';
 
 export default props => {
+
+	let imageUrl = "http://www.ultrahdfreewallpapers.com/uploads/large/animals/cat-hd-wallpaper-0380.jpg";
+	if(props.location.query.image){
+		imageUrl = baseUrl + props.location.query.image;
+	}
+
   let data = {
       "items": {
           "1516645519674": {
@@ -72,7 +79,7 @@ export default props => {
   return (
     <div>
       <ImageAnnotationEdit
-        imageURL="http://www.ultrahdfreewallpapers.com/uploads/large/animals/cat-hd-wallpaper-0380.jpg"
+        imageURL={imageUrl}
         height={600}
         width={800}
         data={data_}

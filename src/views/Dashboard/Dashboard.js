@@ -8,8 +8,8 @@ import {
 } from 'material-ui/Table';
 import axios from 'axios';
 import React, {Component} from 'react';
-import AppBar from 'material-ui/AppBar';
-import FlatButton from 'material-ui/FlatButton';
+
+import {uri} from '../../config/uri';
 
 class Dashboard extends Component{
 
@@ -22,16 +22,14 @@ class Dashboard extends Component{
   }
 
   componentDidMount(){
-    axios.get('http://localhost:8848/api/patients').then(response => this.setState({patients: response.data}));
+    axios.get(uri.patients).then(response => this.setState({patients: response.data}));
   }
 
   render(){
     return(
-      <div className="container">
-        <AppBar
-          title='Patient Information'
-          iconElementRight={<FlatButton label="+ Add Patient Info" onClick={() => this.props.router.push('addPatient')}/>}
-        />
+      <div>
+        <h1>Patient Info</h1>
+
         <Table>
           <TableHeader adjustForCheckbox={false} displaySelectAll={false}>
             <TableRow>
@@ -46,12 +44,12 @@ class Dashboard extends Component{
             {
               this.state.patients && this.state.patients.map(patient =>
                 <TableRow key={patient.id}>
-                <TableRowColumn>{patient.id}</TableRowColumn>
-                <TableRowColumn>{patient.firstName}</TableRowColumn>
-                <TableRowColumn>{patient.middleName}</TableRowColumn>
-                <TableRowColumn>{patient.lastName}</TableRowColumn>
-                <TableRowColumn>{patient.gender}</TableRowColumn>
-              </TableRow>
+                  <TableRowColumn>{patient.id}</TableRowColumn>
+                  <TableRowColumn>{patient.firstName}</TableRowColumn>
+                  <TableRowColumn>{patient.middleName}</TableRowColumn>
+                  <TableRowColumn>{patient.lastName}</TableRowColumn>
+                  <TableRowColumn>{patient.gender}</TableRowColumn>
+                </TableRow>
               )
             }
           </TableBody>
@@ -62,8 +60,6 @@ class Dashboard extends Component{
 
     );
   }
-
-
 }
 
 export default Dashboard;

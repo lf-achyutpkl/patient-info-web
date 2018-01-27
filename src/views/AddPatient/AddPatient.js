@@ -1,6 +1,5 @@
 import axios from 'axios';
 import React, {Component} from 'react';
-import AppBar from 'material-ui/AppBar';
 import TextField from 'material-ui/TextField';
 import RaisedButton from 'material-ui/RaisedButton';
 import FlatButton from 'material-ui/FlatButton';
@@ -8,6 +7,7 @@ import {GridList, GridTile} from 'material-ui/GridList';
 import LinearProgress from 'material-ui/LinearProgress';
 import {RadioButton, RadioButtonGroup} from 'material-ui/RadioButton';
 
+import {uri} from '../../config/uri';
 import styles from './styles';
 
 class AddPatient extends Component{
@@ -31,7 +31,7 @@ class AddPatient extends Component{
 
   render(){
     return(
-      <div className="container">
+      <div>
         {this.state.isLoading &&
           <div
             style={{position: 'absolute', top: 0, left: 0, width: '100%', opacity: 0.2, zIndex: 1200, background: 'grey', height: '100%'}}
@@ -40,12 +40,8 @@ class AddPatient extends Component{
           </div>
         }
 
-        <AppBar
-          title='Add Patient Information'
-          iconElementRight={<FlatButton label="Dashboard" onClick={() => this.props.router.push('/')}/>}
-        />
-
-        <div style={{paddingTop: 50}}>
+        <div>
+          <h1>Add Patient Info</h1>
           <TextField
             name='firstName'
             value={this.state.data.firstName}
@@ -166,8 +162,7 @@ class AddPatient extends Component{
     let data = new FormData();
     this.state.images.forEach && this.state.images.forEach(image => data.append('files', image))
 
-
-    axios.post('http://localhost:8848/api/patients/images', data, config).then(({data}) => {
+    axios.post(uri.uploadImages, data, config).then(({data}) => {
       let images = [];
       data.data && data.data.forEach(image => {
         let annotation = {imageName: image.filename, annotationInfo: ''};
@@ -177,7 +172,7 @@ class AddPatient extends Component{
       let patientInfo = {...this.state.data, annotations: images};
 
 
-      axios.post('http://localhost:8848/api/patients', patientInfo).then(({data}) => {
+      axios.post(uri.patients, patientInfo).then(({data}) => {
         this.setState({isLoading: false});
         this.props.router.push('/');
       })
