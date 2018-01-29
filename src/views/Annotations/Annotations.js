@@ -10,7 +10,8 @@ import {Link} from 'react-router';
 import React, {Component} from 'react';
 import AppBar from 'material-ui/AppBar';
 import MenuItem from 'material-ui/MenuItem';
-import FlatButton from 'material-ui/FlatButton';
+import RaisedButton from 'material-ui/RaisedButton';
+import Checkbox from 'material-ui/Checkbox';
 import DropDownMenu from 'material-ui/DropDownMenu';
 
 import {uri} from '../../config/uri';
@@ -29,7 +30,8 @@ class Annotations extends Component{
         rowCount: 0,
         pageCount: 0
       },
-      annotations: []
+      annotations: [],
+      selectedIndexes: []
     }
   }
 
@@ -46,9 +48,17 @@ class Annotations extends Component{
           <MenuItem value={'false'} primaryText="Display Images Without Annotation" />
         </DropDownMenu>
 
+        {
+          this.state.selectedIndexes.length != 0 &&
+            <div style={{float: 'right', marginTop: '15px'}}>
+              <Link className="btn btn-primary" to={`/annotate${this._redirectToEditor()}`}>Start Batch Annotating</Link>
+            </div>
+        }
+
         <Table>
-          <TableHeader adjustForCheckbox={false} displaySelectAll={false}>
+          <TableHeader displaySelectAll={false}  adjustForCheckbox={false}>
             <TableRow>
+              <TableHeaderColumn>Select</TableHeaderColumn>
               <TableHeaderColumn>Patient Name</TableHeaderColumn>
               <TableHeaderColumn>Is Annotated</TableHeaderColumn>
               <TableHeaderColumn>Tags</TableHeaderColumn>
@@ -56,11 +66,17 @@ class Annotations extends Component{
               <TableHeaderColumn>Action</TableHeaderColumn>
             </TableRow>
           </TableHeader>
-          <TableBody showRowHover={true}  displayRowCheckbox={false}>
+          <TableBody showRowHover  displayRowCheckbox={false}>
             {
               this.state.annotations &&
                 this.state.annotations.map(annotation =>
                   <TableRow key={annotation.id}>
+                    <TableRowColumn>
+                    <Checkbox
+                      checked={this.state.selectedIndexes.includes(annotation.id)}
+                      onCheck={() => this._manageBatchUpdate(annotation.id)}
+                    />
+                    </TableRowColumn>
                     <TableRowColumn>{`${annotation.patient.firstName} ${annotation.patient.lastName}`}</TableRowColumn>
                     <TableRowColumn>{`${annotation.annotationInfo != ''}`}</TableRowColumn>
                     <TableRowColumn>{annotation.tags}</TableRowColumn>
@@ -93,6 +109,8 @@ class Annotations extends Component{
             </ul>
           </nav>
         }
+
+
       </div>
     );
   }
@@ -119,6 +137,22 @@ class Annotations extends Component{
     this.setState({defaultShowAnnotationValue: value}, () => {
       this._fetchData();
     });
+  }
+
+  _manageBatchUpdate = (annotationId) => {
+    let selectedIndexes = [];
+    if(this.state.selectedIndexes.includes(annotationId)){
+      const index = this.state.selectedIndexes.indexOf(annotationId);
+      selectedIndexes = [...this.state.selectedIndexes];
+      selectedIndexes.splice(index, 1);
+    } else {
+      selectedIndexes = this.state.selectedIndexes.concat([annotationId])
+    }
+    this.setState({selectedIndexes});
+  }
+
+  _redirectToEditor = () => {
+    return `?id=${this.state.selectedIndexes.join(',')}`;
   }
 }
 
