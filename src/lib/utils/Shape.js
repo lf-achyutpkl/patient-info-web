@@ -7,7 +7,6 @@ export default class Shape {
     this.r = 0;
     this.canvas = props.canvas;
     this.showAnnCreateModal = props.showAnnCreateModal;
-    this.eventController = props.eventController;
 
     this.init = this.init.bind(this);
     this.draw = this.draw.bind(this);

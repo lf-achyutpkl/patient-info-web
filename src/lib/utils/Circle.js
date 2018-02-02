@@ -53,11 +53,8 @@ export default class Circle extends Shape {
       if (caption) {
         circle.caption = caption;
         this.canvas.add(circle);
-        this.eventController.disableEvents(circle);
       }
     }
-    let id = new Date().getTime();
-    circle.set("itemId", id);
 
     this.canvas.discardActiveObject();
     this.canvas.renderAll();
@@ -65,7 +62,6 @@ export default class Circle extends Shape {
 
     if (this.afterDraw)
       this.afterDraw({
-        id: id,
         type: "circle",
         left: circle.left,
         top: circle.top,
@@ -73,6 +69,8 @@ export default class Circle extends Shape {
         angle: circle.angle,
         scaleX: circle.scaleX,
         scaleY: circle.scaleY
+      }, (id)=> {
+          circle.set("itemId", id);
       });
   }
 }

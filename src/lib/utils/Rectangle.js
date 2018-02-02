@@ -72,11 +72,8 @@ export default class Rectangle extends Shape {
       if (caption) {
         square.caption = caption;
         this.canvas.add(square);
-        this.eventController.disableEvents(square);
       }
     }
-    let id = new Date().getTime();
-    square.set("itemId", id);
 
     this.canvas.discardActiveObject();
     this.canvas.renderAll();
@@ -84,7 +81,6 @@ export default class Rectangle extends Shape {
 
     if (this.afterDraw)
       this.afterDraw({
-        id: id,
         type: "rectangle",
         left: square.left,
         top: square.top,
@@ -93,6 +89,8 @@ export default class Rectangle extends Shape {
         angle: square.angle,
         scaleX: square.scaleX,
         scaleY: square.scaleY
+      }, (id) => {
+          square.set("itemId", id);
       });
   }
 }

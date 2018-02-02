@@ -1,12 +1,9 @@
 import React from 'react';
 
-import EventController from '../utils/EventController';
 import Rectangle from '../utils/Rectangle';
 import Circle from '../utils/Circle';
 
 import { fabric } from 'fabric';
-
-let eventController = new EventController();
 
 export default class ImageAnnotationEdit extends React.Component {
   constructor(props) {
@@ -46,6 +43,7 @@ export default class ImageAnnotationEdit extends React.Component {
     this.handleAnnModalSearchChange = this.handleAnnModalSearchChange.bind(
       this,
     );
+    this.deleteAnn = this.deleteAnn.bind(this);
     this.getOptions = this.getOptions.bind(this);
   }
 
@@ -55,21 +53,29 @@ export default class ImageAnnotationEdit extends React.Component {
 
   componentWillReceiveProps() {
     this.init();
+    this.forceUpdate();
   }
 
   init() {
-    let canvas = new fabric.Canvas(this.canvasElement);
+    let preElem = this.elem.querySelector(".canvas-container");
+    if(preElem) this.elem.removeChild(preElem);
 
-    canvas.observe('object:selected', function(e) {
-      if (e.target.caption) {
-        console.log(e.target.caption, 111);
-      }
+    let canvasElement = document.createElement("canvas");
+    canvasElement.setAttribute("width", 800);
+    canvasElement.setAttribute("height", 600);
+    this.elem.appendChild(canvasElement);
+    let canvas = new fabric.Canvas(canvasElement);
+
+    canvas.observe('object:selected', (e) => {
+        let itemId = e.target.itemId;
+        if(!itemId) return;
+        this.showAnnModal(itemId);
     });
 
     canvas.on('mouse:over', e => {
       let itemId = e.target.itemId;
-
-      this.showAnnModal(itemId);
+      if(!itemId) return;
+      this.selectedItemId = itemId;
     });
 
     canvas.on('mouse:out', ({ e }) => {});
@@ -97,13 +103,11 @@ export default class ImageAnnotationEdit extends React.Component {
 
     let rectangle = new Rectangle({
       canvas,
-      showAnnCreateModal,
-      eventController,
+      showAnnCreateModal
     });
     let circle = new Circle({
       canvas,
-      showAnnCreateModal,
-      eventController,
+      showAnnCreateModal
     });
 
     rectangle.init({
@@ -139,10 +143,6 @@ export default class ImageAnnotationEdit extends React.Component {
   enableMovement() {
     this.rectangle.clean();
     this.circle.clean();
-    this.canvas.getObjects().forEach(function(o) {
-      console.log('herer', o);
-      eventController.enableEvents(o);
-    });
   }
 
   enableAnnModalEdit() {
@@ -202,6 +202,7 @@ export default class ImageAnnotationEdit extends React.Component {
     annModal.isEdit = true;
 
     this.setState({ annModal });
+    this.enableMovement();
 
     if (true) {
       return 'asdas';
@@ -220,6 +221,13 @@ export default class ImageAnnotationEdit extends React.Component {
     };
   }
 
+  deleteAnn() {
+      let itemId = this.selectedItemId;
+      let item = this.data.items[itemId];
+      if (!item) return;
+      this.props.remove(item);
+  }
+
   resetState() {
     this.setState({
       resetComponentState: true,
@@ -227,7 +235,7 @@ export default class ImageAnnotationEdit extends React.Component {
   }
 
   addItem(item) {
-    this.data.items[item.id] = item;
+    this.props.add(item);
   }
 
   updateItem(itemId, e) {
@@ -335,10 +343,6 @@ export default class ImageAnnotationEdit extends React.Component {
         <canvas
           height="600"
           width="800"
-          id="canvas"
-          ref={input => {
-            this.canvasElement = input;
-          }}
         />
         <div
           className="image-annotation-selection"
@@ -352,9 +356,12 @@ export default class ImageAnnotationEdit extends React.Component {
           }}
         >
           <p>{annModal.text}</p>
-          {!annModal.isEdit && (
-            <button className="edit-button" onClick={this.enableAnnModalEdit}>Edit</button>
-          )}
+          <div style={{display: "inline-block"}}>
+            {!annModal.isEdit && (
+                <button className="edit-button" onClick={this.enableAnnModalEdit}>Edit</button>
+            )}
+            <button className="edit-button" onClick={this.deleteAnn}>Delete</button>
+          </div>
           {annModal.isEdit && (
             <ul>
               <li>
@@ -366,7 +373,7 @@ export default class ImageAnnotationEdit extends React.Component {
               </li>
               {this.getOptions().map((option, index) => {
                 return (
-                  <li key={index} className="option-item" onClick={this.saveAnn(option)}>
+                  <li key={index} onClick={this.saveAnn(option)}>
                     {option}
                   </li>
                 );
