@@ -26,6 +26,9 @@ class AnnotateEditor extends Component {
         super(props);
 
         this.state = {
+          data: {
+            items: {}
+          },
           isLoading: true,
           annotationIds: [],
           currentIndex: 0,
@@ -57,10 +60,6 @@ class AnnotateEditor extends Component {
       }
     }
 
-    componentWillUpdate(){
-
-    }
-
     /**
      * ImageAnnotationEdit Props:
      * imageURL
@@ -87,8 +86,10 @@ class AnnotateEditor extends Component {
             height={IMAGE_HEIGHT}
             width={IMAGE_WIDTH}
             update={this.update}
-            data={JSON.parse(this.state.annotation.annotationInfo || null)}
+            data={this.state.data}
             options={OPTIONS}
+            add={this._add}
+            remove={this._remove}
           />
         </div>
       );
@@ -98,7 +99,14 @@ class AnnotateEditor extends Component {
       get(`${uri.annotation}/${this.state.annotationIds[this.state.currentIndex]}`)
       .then(response => {
         let imageUrl = baseUrl + response.data.imageName;
-        this.setState({ annotation: response.data, imageUrl, isLoading: false });
+        let data = {items: {}};
+
+        if(response.data.annotationInfo != ""){
+          data = JSON.parse(response.data.annotationInfo);
+        }
+        this.setState({ annotation: response.data, imageUrl, data, isLoading: false }, () => {
+          console.log(this.state.items)
+        });
       })
     }
 
@@ -106,9 +114,11 @@ class AnnotateEditor extends Component {
     let oldCanvas = document.getElementById('canvas');
     oldCanvas = null;
 
-    let annotation = {...this.state.annotation, annotationInfo: JSON.stringify(data)};
+
+    let annotation = {...this.state.annotation, annotationInfo: JSON.stringify(this.state.data)};
+
     // this.setState({annotation}, () => {
-      put(`${uri.annotation}/${this.state.annotationId}`, annotation);
+      put(`${uri.annotation}/${this.state.annotationIds[this.state.currentIndex]}`, annotation);
     // })
 
   };
@@ -121,6 +131,23 @@ class AnnotateEditor extends Component {
     localStorage.setItem(ANNOTATIONS, JSON.stringify(this.state.annotationIds));
 
     window.location.reload();
+  }
+
+  _add = (item) => {
+    item.id = new Date().getTime();
+    let data = this.state.data;
+    data.items[item.id] = item;
+    this.setState({
+        data
+    });
+  }
+
+  _remove = (item) => {
+    let data = this.state.data;
+    let items = data.items;
+    delete items[item.id];
+    data.items = items;
+    this.setState({data});
   }
 };
 

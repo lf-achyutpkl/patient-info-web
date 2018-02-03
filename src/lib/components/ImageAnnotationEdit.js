@@ -260,7 +260,10 @@ export default class ImageAnnotationEdit extends React.Component {
   }
 
   loadState() {
-    let data = this.props.data || {items: {}};
+    let data = this.props.data;
+   if(this.props.data['items'] == undefined){
+     data = {items: {}}
+   }
 
     let lastId = this.lastId;
 
