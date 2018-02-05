@@ -6,7 +6,6 @@ import Annotate from './views/Annotate';
 import Dashboard from './views/Dashboard';
 import Annotates from './views/Annotations';
 import AddPatient from './views/AddPatient';
-import BatchUpload from './views/BatchUpload';
 
 let routes = (
   <Router history={browserHistory}>
@@ -15,7 +14,6 @@ let routes = (
       <Route path={'/addPatient'} component={AddPatient}/>
       <Route path={'/annotate'} component={Annotate}/>
       <Route path={'/images'} component={Annotates}/>
-      <Route path={'/batchUpload'} component={BatchUpload}/>
     </Route>
   </Router>
 );
