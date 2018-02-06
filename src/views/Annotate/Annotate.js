@@ -294,17 +294,24 @@ class AnnotateEditor extends Component {
   }
 
   _constructQueryParam = () => {
+    let userId=this.props.route.loggedUser && this.props.route.loggedUser.id; 
     let { page, pageSize } = this.state.pagination;
-    let batchId=this.props.location.query.batchId;
-    return `?annotation=all&page=${page}&pageSize=${pageSize}&batchId=${batchId}&isReject=${this.state.isReject}`;
+    return `?annotation=all&page=${page}&pageSize=${pageSize}&userId=${userId}&isReject=${this.state.isReject}`;
   }
 
-
-  _fetchData = () => {      
+  _fetchData = () => {   
     let url = uri.images + this._constructQueryParam();
+    let data = {items: {}};
     get(url)
-    .then(response => this.setState({annotations: response.data,  isLoading: false})); 
+      .then(response =>{
+        this.setState({ annotations: response.data, isLoading: false },()=>{
 
+          if(this.state.annotations[this.state.currentIndex].annotationInfo != null && this.state.annotations[this.state.currentIndex].annotationInfo != ""){
+            data = JSON.parse(this.state.annotations[this.state.currentIndex].annotationInfo);
+          }
+          this.setState({data});
+          });
+        });
   }
 
   _fetchAllTags = () => {   
