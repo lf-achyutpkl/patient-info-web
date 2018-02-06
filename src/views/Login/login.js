@@ -73,7 +73,7 @@ componentDidMount(){
         }
     })
     .catch(error=> {
-       alert(error.response.data.error.message);
+       alert("Email and Password combination does not match.");
     });
     }
 }

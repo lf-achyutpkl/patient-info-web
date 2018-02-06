@@ -145,6 +145,7 @@ export default class ImageAnnotationEdit extends React.Component {
   }
 
   shouldComponentUpdate(props, nextState) {
+    console.log("should comp update");
     return true;
   }
 
@@ -217,7 +218,6 @@ export default class ImageAnnotationEdit extends React.Component {
 
   showAnnModal(itemId) {
     console.log('show modal');
-    console.log(itemId, this.data);
 
     let selectedItemId = itemId;
     this.selectedItemId = selectedItemId;
@@ -303,6 +303,7 @@ export default class ImageAnnotationEdit extends React.Component {
   }
 
   saveState() {
+    console.log("data",this.data);
     if (this.props.update) this.props.update(this.data);
   }
 

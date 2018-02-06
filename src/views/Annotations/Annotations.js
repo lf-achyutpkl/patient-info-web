@@ -16,7 +16,8 @@ import DropDownMenu from 'material-ui/DropDownMenu';
 import Dialog from 'material-ui/Dialog';
 import FlatButton from 'material-ui/FlatButton';
 
-import {baseUrl,uri} from '../../config/uri';
+import {baseUrl,uri,} from '../../config/uri';
+import {localStorageConstants} from '../../config/localStorageConstants';
 import {get,post,put} from '../../utils/httpUtils';
 
 class Annotations extends Component{
@@ -27,6 +28,7 @@ class Annotations extends Component{
     this.state = {
       defaultShowAnnotationValue: 'all',
       defaultTagValue:0,
+      currentUser:{},
       tags:[],
       isReject:false,
       open: false,
@@ -43,7 +45,7 @@ class Annotations extends Component{
     }
   }
 
-  componentDidMount(){
+  componentDidMount(){   
     this._fetchData();
     this._fetchAllTags();
     // this._fetchBatchAnnotation();
@@ -92,7 +94,7 @@ class Annotations extends Component{
         <Table>
           <TableHeader displaySelectAll={false}  adjustForCheckbox={false}>
             <TableRow>
-              <TableHeaderColumn>Select</TableHeaderColumn>
+              <TableHeaderColumn style={{ width:'100px' }}>Select</TableHeaderColumn>
               <TableHeaderColumn>Patient Name</TableHeaderColumn>
               <TableHeaderColumn>Is Annotated</TableHeaderColumn>
               <TableHeaderColumn>Tags</TableHeaderColumn>
@@ -162,19 +164,28 @@ class Annotations extends Component{
     );
   }
 
-  _constructQueryParam = () => {
-    let userId=this.props.route.loggedUser.id; 
+  _constructQueryParam = () => {  
     let { page, pageSize } = this.state.pagination;
-    return `?annotation=${this.state.defaultShowAnnotationValue}&page=${page}&pageSize=${pageSize}&userId=${userId}&isReject=${this.state.isReject}&tagId=${this.state.defaultTagValue}`;
+    let batchId=this.state.currentUser.batches.length > 0 ? this.state.currentUser.batches[0].id : 0;
+    return `?annotation=${this.state.defaultShowAnnotationValue}&page=${page}&pageSize=${pageSize}&batchId=${batchId}&isReject=${this.state.isReject}&tagId=${this.state.defaultTagValue}`;
   }
 
-  _fetchData = () => {   
+  _fetchData = () => { 
+    let userId=0;
     if(this.props.route.loggedUser){
-    let url = uri.images + this._constructQueryParam();    
+      userId=this.props.route.loggedUser && this.props.route.loggedUser.id;
+    }else{
+      userId=this._getLoggedUser().id;
+    } 
+    let url = uri.users+'/'+userId; 
     get(url)
-      .then(response => this.setState({annotations: response.data, pagination: response.pagination}));
-    }
-  }
+    .then(response => {
+        this.setState({currentUser: response.data})        
+        url = uri.images + this._constructQueryParam();
+        get(url)
+        .then(response => this.setState({annotations: response.data, pagination: response.pagination}));
+      });
+   }
 
   _fetchAllTags = () => {   
     let url = uri.tags;
@@ -182,6 +193,11 @@ class Annotations extends Component{
       .then(response =>{
         this.setState({ tags: response.data });
         });
+  }
+
+  _getLoggedUser(){
+    let user=localStorage.getItem(localStorageConstants.LOGGED_USER);
+    return JSON.parse(user);
   }
 
   _updateAnnotation=(annotation)=>{
