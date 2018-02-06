@@ -239,6 +239,11 @@ class Annotations extends Component{
         });
   }
 
+  _getLoggedUser(){
+    let user=localStorage.getItem(localStorageConstants.LOGGED_USER);
+    return JSON.parse(user);
+  }
+
   _updateAnnotation=(annotation)=>{
     annotation.isReject=!annotation.isReject;
     put(`${uri.annotation}/${annotation.id}`, annotation).then(response=>{

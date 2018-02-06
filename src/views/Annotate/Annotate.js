@@ -294,10 +294,11 @@ class AnnotateEditor extends Component {
   }
 
   _constructQueryParam = () => {
-    let userId=this.props.route.loggedUser && this.props.route.loggedUser.id; 
     let { page, pageSize } = this.state.pagination;
-    return `?annotation=all&page=${page}&pageSize=${pageSize}&userId=${userId}&isReject=${this.state.isReject}`;
+    let batchId=this.state.currentUser.batches.length > 0 ? this.state.currentUser.batches[0].id : 0;
+    return `?annotation=all&page=${page}&pageSize=${pageSize}&batchId=${batchId}&isReject=${this.state.isReject}`;
   }
+
 
   _fetchData = () => {   
     let url = uri.images + this._constructQueryParam();
