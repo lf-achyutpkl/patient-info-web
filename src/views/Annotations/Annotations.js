@@ -26,6 +26,8 @@ class Annotations extends Component{
 
     this.state = {
       defaultShowAnnotationValue: 'all',
+      defaultTagValue:0,
+      tags:[],
       isReject:false,
       open: false,
       selectedPatientName:'',
@@ -43,6 +45,7 @@ class Annotations extends Component{
 
   componentDidMount(){
     this._fetchData();
+    this._fetchAllTags();
     // this._fetchBatchAnnotation();
   }
 
@@ -68,6 +71,15 @@ class Annotations extends Component{
           <MenuItem value={'true'} primaryText="Display Annotated Images" />
           <MenuItem value={'false'} primaryText="Display Images Without Annotation" />
           <MenuItem value={'reject'} primaryText="Display Rejected Images" />
+        </DropDownMenu>
+
+        <DropDownMenu value={this.state.defaultTagValue} onChange={this._changeTag}>
+          <MenuItem value={0} primaryText="Display All Tags" />
+          {
+            this.state.tags.map(tag=>
+              <MenuItem key={tag.id} value={parseInt(tag.id)} primaryText={tag.tagName} />
+            )
+          }
         </DropDownMenu>
 
         {                  
@@ -153,7 +165,7 @@ class Annotations extends Component{
   _constructQueryParam = () => {
     let userId=this.props.route.loggedUser.id; 
     let { page, pageSize } = this.state.pagination;
-    return `?annotation=${this.state.defaultShowAnnotationValue}&page=${page}&pageSize=${pageSize}&userId=${userId}&isReject=${this.state.isReject}`;
+    return `?annotation=${this.state.defaultShowAnnotationValue}&page=${page}&pageSize=${pageSize}&userId=${userId}&isReject=${this.state.isReject}&tagId=${this.state.defaultTagValue}`;
   }
 
   _fetchData = () => {   
@@ -162,6 +174,14 @@ class Annotations extends Component{
     get(url)
       .then(response => this.setState({annotations: response.data, pagination: response.pagination}));
     }
+  }
+
+  _fetchAllTags = () => {   
+    let url = uri.tags;
+    get(url)
+      .then(response =>{
+        this.setState({ tags: response.data });
+        });
   }
 
   _updateAnnotation=(annotation)=>{
@@ -200,6 +220,12 @@ class Annotations extends Component{
         this._fetchData();
        });
   }
+
+  _changeTag = (event, index, value) => {
+    this.setState({defaultTagValue:value}, () => {
+      this._fetchData();
+     });
+}
 
   _manageBatchUpdate = (annotationId) => {
     let selectedIndexes = [];
