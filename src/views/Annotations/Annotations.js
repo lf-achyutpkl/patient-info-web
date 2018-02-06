@@ -231,6 +231,14 @@ class Annotations extends Component{
     return JSON.parse(user);
   }
 
+  _fetchAllTags = () => {   
+    let url = uri.tags;
+    get(url)
+      .then(response =>{
+        this.setState({ tags: response.data });
+        });
+  }
+
   _updateAnnotation=(annotation)=>{
     annotation.isReject=!annotation.isReject;
     put(`${uri.annotation}/${annotation.id}`, annotation).then(response=>{
