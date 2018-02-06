@@ -13,9 +13,11 @@ import MenuItem from 'material-ui/MenuItem';
 import RaisedButton from 'material-ui/RaisedButton';
 import Checkbox from 'material-ui/Checkbox';
 import DropDownMenu from 'material-ui/DropDownMenu';
+import Dialog from 'material-ui/Dialog';
+import FlatButton from 'material-ui/FlatButton';
 
-import {uri} from '../../config/uri';
-import {get} from '../../utils/httpUtils';
+import {baseUrl,uri} from '../../config/uri';
+import {get,post,put} from '../../utils/httpUtils';
 
 class Annotations extends Component{
 
@@ -24,6 +26,10 @@ class Annotations extends Component{
 
     this.state = {
       defaultShowAnnotationValue: 'all',
+      isReject:false,
+      open: false,
+      selectedPatientName:'',
+      selectedImageUrl:'',
       pagination: {
         page: 1,
         pageSize: 20,
@@ -37,21 +43,37 @@ class Annotations extends Component{
 
   componentDidMount(){
     this._fetchData();
+    // this._fetchBatchAnnotation();
+  }
+
+  componentDidUpdate(){
+    setTimeout(() => {
+      window.dispatchEvent(new Event('resize'));
+    }, 400);
   }
 
   render(){
+    const actions = [
+      <FlatButton
+        label="Cancel"
+        primary={true}
+        onClick={this._handleClose}
+      />
+    ];
+
     return(
       <div>
         <DropDownMenu value={this.state.defaultShowAnnotationValue} onChange={this._handleDropDownChange}>
           <MenuItem value={'all'} primaryText="Display All Images" />
           <MenuItem value={'true'} primaryText="Display Annotated Images" />
           <MenuItem value={'false'} primaryText="Display Images Without Annotation" />
+          <MenuItem value={'reject'} primaryText="Display Rejected Images" />
         </DropDownMenu>
 
-        {
-          this.state.selectedIndexes.length != 0 &&
-            <div style={{float: 'right', marginTop: '15px'}}>
-              <Link className="btn btn-primary" to={`/annotate${this._redirectToEditor()}`}>Start Batch Annotating</Link>
+        {                  
+          this.state.annotations.length != 0 &&
+            <div style={{float: 'right', marginTop: '15px',marginLeft:'10px'}}>             
+              <Link className="btn btn-primary" to={`/annotate`}>Start Batch Annotating</Link>
             </div>
         }
 
@@ -79,14 +101,29 @@ class Annotations extends Component{
                     </TableRowColumn>
                     <TableRowColumn>{`${annotation.patient.firstName} ${annotation.patient.lastName}`}</TableRowColumn>
                     <TableRowColumn>{`${annotation.annotationInfo != ''}`}</TableRowColumn>
-                    <TableRowColumn>{annotation.tags}</TableRowColumn>
+                    <TableRowColumn>{annotation.tags.map((tag)=>{return tag.tagName}).join(',')}</TableRowColumn>
                     <TableRowColumn>{annotation.remarks}</TableRowColumn>
-                    <TableRowColumn><Link to={`/annotate?id=${annotation.id}`} target="_blank">Annotate</Link></TableRowColumn>
+                    <TableRowColumn>
+                      <a href="#" style={{marginRight:"10px"}} onClick={() => this._updateAnnotation(annotation)}>Reject</a>
+                      <a href="#" onClick={() => this._previewImage(annotation.imageName,annotation.patient.firstName,annotation.patient.lastName)}>Preview</a>
+                    </TableRowColumn>
                   </TableRow>
                 )
             }
           </TableBody>
         </Table>
+
+        <Dialog
+          title={this.state.selectedPatientName}
+          actions={actions}
+          modal={false}
+          open={this.state.open}
+          onRequestClose={this._handleClose}
+        >
+        <div style={{overflow:"scroll",maxHeight:"400px"}}>
+          <img width="100%" src={this.state.selectedImageUrl} />
+        </div>
+        </Dialog>
 
         {
           this.state.annotations.length != 0 &&
@@ -109,22 +146,47 @@ class Annotations extends Component{
             </ul>
           </nav>
         }
-
-
       </div>
     );
   }
 
   _constructQueryParam = () => {
+    let userId=this.props.route.loggedUser.id; 
     let { page, pageSize } = this.state.pagination;
-    return `?annotation=${this.state.defaultShowAnnotationValue}&page=${page}&pageSize=${pageSize}`;
+    return `?annotation=${this.state.defaultShowAnnotationValue}&page=${page}&pageSize=${pageSize}&userId=${userId}&isReject=${this.state.isReject}`;
   }
 
-  _fetchData = () => {
-    let url = uri.images + this._constructQueryParam();
+  _fetchData = () => {   
+    if(this.props.route.loggedUser){
+    let url = uri.images + this._constructQueryParam();    
     get(url)
       .then(response => this.setState({annotations: response.data, pagination: response.pagination}));
+    }
   }
+
+  _updateAnnotation=(annotation)=>{
+    annotation.isReject=true;
+    put(`${uri.annotation}/${annotation.id}`, annotation).then(response=>{
+      if(response.data){
+        let newAnnotations=this.state.annotations.filter(res=>{
+          return res.id != annotation.id;
+        });
+        this.setState({
+          annotations:newAnnotations 
+        }) 
+      }
+    });
+  }
+
+  _previewImage=(imageName,firstName,lastName)=>{
+    let imageUrl=baseUrl + imageName;
+    this.setState({open: true,selectedImageUrl:imageUrl,selectedPatientName:firstName+' '+lastName});
+    
+  }
+
+  _handleClose = () => {
+    this.setState({open: false});
+  };
 
   _onClickPagination = (gotoPage) => {
     let pagination = {...this.state.pagination, page: gotoPage};
@@ -134,9 +196,9 @@ class Annotations extends Component{
   }
 
   _handleDropDownChange = (event, index, value) => {
-    this.setState({defaultShowAnnotationValue: value}, () => {
-      this._fetchData();
-    });
+      this.setState({defaultShowAnnotationValue:value=='reject'?'all':value,isReject:value=='reject'?true:false}, () => {
+        this._fetchData();
+       });
   }
 
   _manageBatchUpdate = (annotationId) => {
@@ -151,9 +213,19 @@ class Annotations extends Component{
     this.setState({selectedIndexes});
   }
 
-  _redirectToEditor = () => {
-    return `?id=${this.state.selectedIndexes.join(',')}`;
-  }
+  // _redirectToEditor = () => {
+  //   return `?id=${this.state.annotations.map((annotation)=>{return annotation.id}).join(',')}`;
+  // }
+
+  // _redirectToMyBatch = () => {
+  //   return `?id=${this.state.batchAnnotations.map((el)=>{return el.annotationId}).join(',')}`;
+  // }
+
+  // _saveBatchAnnotation = () => {
+  //   let userId=this.props.route.loggedUser.id;
+  //   let annotationIds = {ids: this.state.selectedIndexes};
+  //   post(`${uri.users}/${userId}/batch-annotation`, annotationIds);
+  // }
 }
 
 export default Annotations;

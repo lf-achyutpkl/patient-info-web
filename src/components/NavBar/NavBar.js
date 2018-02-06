@@ -3,8 +3,9 @@ import {Link} from 'react-router';
 
 const navigations = {
   'Dashboard' : '/',
-  'Add Patient' : '/addPatient',
-  'Images' : '/images'
+  // 'Add Patient' : '/addPatient',
+  'Images' : '/images',
+  'Log Out':'/login'
 }
 
 const NavBar = () => (
