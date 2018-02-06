@@ -2,6 +2,7 @@ import React from 'react';
 
 import Rectangle from '../utils/Rectangle';
 import Circle from '../utils/Circle';
+import Polygon from '../utils/Polygon';
 
 import { fabric } from 'fabric';
 
@@ -27,6 +28,7 @@ export default class ImageAnnotationEdit extends React.Component {
 
     this.enableDrawRect = this.enableDrawRect.bind(this);
     this.enableDrawCircle = this.enableDrawCircle.bind(this);
+    this.enableDrawPolygon = this.enableDrawPolygon.bind(this);
     this.enableMovement = this.enableMovement.bind(this);
     this.saveState = this.saveState.bind(this);
     this.loadState = this.loadState.bind(this);
@@ -57,24 +59,24 @@ export default class ImageAnnotationEdit extends React.Component {
   }
 
   init() {
-    let preElem = this.elem.querySelector(".canvas-container");
-    if(preElem) this.elem.removeChild(preElem);
+    let preElem = this.elem.querySelector('.canvas-container');
+    if (preElem) this.elem.removeChild(preElem);
 
-    let canvasElement = document.createElement("canvas");
-    canvasElement.setAttribute("width", 800);
-    canvasElement.setAttribute("height", 600);
+    let canvasElement = document.createElement('canvas');
+    canvasElement.setAttribute('width', 800);
+    canvasElement.setAttribute('height', 600);
     this.elem.appendChild(canvasElement);
     let canvas = new fabric.Canvas(canvasElement);
 
-    canvas.observe('object:selected', (e) => {
-        let itemId = e.target.itemId;
-        if(!itemId) return;
-        this.showAnnModal(itemId);
+    canvas.observe('object:selected', e => {
+      let itemId = e.target.itemId;
+      if (!itemId) return;
+      this.showAnnModal(itemId);
     });
 
     canvas.on('mouse:over', e => {
       let itemId = e.target.itemId;
-      if(!itemId) return;
+      if (!itemId) return;
       this.selectedItemId = itemId;
     });
 
@@ -103,11 +105,15 @@ export default class ImageAnnotationEdit extends React.Component {
 
     let rectangle = new Rectangle({
       canvas,
-      showAnnCreateModal
+      showAnnCreateModal,
     });
     let circle = new Circle({
       canvas,
-      showAnnCreateModal
+      showAnnCreateModal,
+    });
+    let polygon = new Polygon({
+      canvas,
+      showAnnCreateModal,
     });
 
     rectangle.init({
@@ -117,10 +123,14 @@ export default class ImageAnnotationEdit extends React.Component {
     circle.init({
       afterDraw: this.addItem,
     });
+    polygon.init({
+      afterDraw: this.addItem,
+    });
 
     this.canvas = canvas;
     this.rectangle = rectangle;
     this.circle = circle;
+    this.polygon = polygon;
     this.loadState();
   }
 
@@ -130,14 +140,23 @@ export default class ImageAnnotationEdit extends React.Component {
 
   enableDrawRect() {
     this.rectangle.clean();
+    this.polygon.clean();
     this.circle.clean();
     this.rectangle.draw();
   }
 
   enableDrawCircle() {
     this.rectangle.clean();
+    this.polygon.clean();
     this.circle.clean();
     this.circle.draw();
+  }
+
+  enableDrawPolygon() {
+    this.rectangle.clean();
+    this.circle.clean();
+    this.polygon.clean();
+    this.polygon.draw();
   }
 
   enableMovement() {
@@ -222,10 +241,10 @@ export default class ImageAnnotationEdit extends React.Component {
   }
 
   deleteAnn() {
-      let itemId = this.selectedItemId;
-      let item = this.data.items[itemId];
-      if (!item) return;
-      this.props.remove(item);
+    let itemId = this.selectedItemId;
+    let item = this.data.items[itemId];
+    if (!item) return;
+    this.props.remove(item);
   }
 
   resetState() {
@@ -260,10 +279,7 @@ export default class ImageAnnotationEdit extends React.Component {
   }
 
   loadState() {
-    let data = this.props.data;
-   if(this.props.data['items'] == undefined){
-     data = {items: {}}
-   }
+    let data = this.props.data || { items: {} };
 
     let lastId = this.lastId;
 
@@ -295,6 +311,18 @@ export default class ImageAnnotationEdit extends React.Component {
           angle: item.angle,
           scaleX: item.scaleX,
           scaleY: item.scaleY,
+        });
+      }
+
+      if (item.type === 'polygon') {
+        shape = new fabric.Polygon(item.points, {
+          top: item.top,
+          left: item.left,
+          fill: 'transparent',
+          stroke: 'red',
+          opacity: 1,
+          hasBorders: false,
+          hasControls: false,
         });
       }
 
@@ -334,6 +362,7 @@ export default class ImageAnnotationEdit extends React.Component {
         <div className="image-annotation-toolbar">
           <button onClick={this.enableDrawRect}>Draw Rectangle</button>
           <button onClick={this.enableDrawCircle}>Draw Circle</button>
+          <button onClick={this.enableDrawPolygon}>Draw Polygon</button>
           <button onClick={this.enableMovement}>Select Tool</button>
           <button onClick={this.saveState}>Save</button>
           <button onClick={this.resetState}>Reset</button>
@@ -343,10 +372,7 @@ export default class ImageAnnotationEdit extends React.Component {
           height={this.props.height}
           width={this.props.width}
         />
-        <canvas
-          height="600"
-          width="800"
-        />
+        <canvas height="600" width="800" />
         <div
           className="image-annotation-selection"
           style={{
@@ -359,11 +385,15 @@ export default class ImageAnnotationEdit extends React.Component {
           }}
         >
           <p>{annModal.text}</p>
-          <div style={{display: "inline-block"}}>
+          <div style={{ display: 'inline-block' }}>
             {!annModal.isEdit && (
-                <button className="edit-button" onClick={this.enableAnnModalEdit}>Edit</button>
+              <button className="edit-button" onClick={this.enableAnnModalEdit}>
+                Edit
+              </button>
             )}
-            <button className="edit-button" onClick={this.deleteAnn}>Delete</button>
+            <button className="edit-button" onClick={this.deleteAnn}>
+              Delete
+            </button>
           </div>
           {annModal.isEdit && (
             <ul>
@@ -376,7 +406,7 @@ export default class ImageAnnotationEdit extends React.Component {
               </li>
               {this.getOptions().map((option, index) => {
                 return (
-                  <li key={index} className="option-item" onClick={this.saveAnn(option)}>
+                  <li key={index} onClick={this.saveAnn(option)}>
                     {option}
                   </li>
                 );

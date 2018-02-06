@@ -101,7 +101,7 @@ class AnnotateEditor extends Component {
         let imageUrl = baseUrl + response.data.imageName;
         let data = {items: {}};
 
-        if(response.data.annotationInfo != ""){
+        if(response.data.annotationInfo != null && response.data.annotationInfo != ""){
           data = JSON.parse(response.data.annotationInfo);
         }
         this.setState({ annotation: response.data, imageUrl, data, isLoading: false }, () => {
