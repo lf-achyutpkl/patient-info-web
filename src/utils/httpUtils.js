@@ -6,7 +6,7 @@ axios.defaults.headers.common['x-access-token'] = localStorage.getItem(localStor
 
 export function get(url){
   return axios(url).then(response => response.data).catch(error=>{
-    if(error.response.data.error.code==401){
+    if(error.response && error.response.data.error.code==401){
     window.location.href='/login';
     }
   });
@@ -14,7 +14,7 @@ export function get(url){
 
 export function put(url, body){
   return axios.put(url, body).then(response => response.data).catch(error=>{
-    if(error.response.data.error.code==401){
+    if(error.response && error.response.data.error.code==401){
       window.location.href='/login';
       }
   });
@@ -22,7 +22,7 @@ export function put(url, body){
 
 export function post(url, body){ 
   return axios.post(url, body).then(response => response.data).catch(error=>{
-    if(error.response.data.error.code==401){
+    if(error.response && error.response.data.error.code==401){
       window.location.href='/login';
       }
   });

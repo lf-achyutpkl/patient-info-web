@@ -94,7 +94,7 @@ class Annotations extends Component{
         <Table>
           <TableHeader displaySelectAll={false}  adjustForCheckbox={false}>
             <TableRow>
-              <TableHeaderColumn style={{ width:'100px' }}>Select</TableHeaderColumn>
+              {/* <TableHeaderColumn style={{ width:'100px' }}>Select</TableHeaderColumn> */}
               <TableHeaderColumn>Patient Name</TableHeaderColumn>
               <TableHeaderColumn>Is Annotated</TableHeaderColumn>
               <TableHeaderColumn>Tags</TableHeaderColumn>
@@ -107,18 +107,18 @@ class Annotations extends Component{
               this.state.annotations &&
                 this.state.annotations.map(annotation =>
                   <TableRow key={annotation.id}>
-                    <TableRowColumn>
+                    {/* <TableRowColumn>
                     <Checkbox
                       checked={this.state.selectedIndexes.includes(annotation.id)}
                       onCheck={() => this._manageBatchUpdate(annotation.id)}
                     />
-                    </TableRowColumn>
+                    </TableRowColumn> */}
                     <TableRowColumn>{`${annotation.patient.firstName} ${annotation.patient.lastName}`}</TableRowColumn>
                     <TableRowColumn>{`${annotation.annotationInfo != ''}`}</TableRowColumn>
                     <TableRowColumn>{annotation.tags.map((tag)=>{return tag.tagName}).join(',')}</TableRowColumn>
                     <TableRowColumn>{annotation.remarks}</TableRowColumn>
                     <TableRowColumn>
-                      <a href="#" style={{marginRight:"10px"}} onClick={() => this._updateAnnotation(annotation)}>Reject</a>
+                      <a href="#" style={{marginRight:"10px"}} onClick={() => this._updateAnnotation(annotation)}>{annotation.isReject==false?'Reject' : 'Accept'}</a>
                       <a href="#" onClick={() => this._previewImage(annotation.imageName,annotation.patient.firstName,annotation.patient.lastName)}>Preview</a>
                     </TableRowColumn>
                   </TableRow>
@@ -167,7 +167,7 @@ class Annotations extends Component{
   _constructQueryParam = () => {  
     let { page, pageSize } = this.state.pagination;
     let batchId=this.state.currentUser.batches.length > 0 ? this.state.currentUser.batches[0].id : 0;
-    return `?annotation=${this.state.defaultShowAnnotationValue}&page=${page}&pageSize=${pageSize}&batchId=${batchId}&isReject=${this.state.isReject}&tagId=${this.state.defaultTagValue}`;
+    return `?annotation=${this.state.isReject?'all':this.state.defaultShowAnnotationValue}&page=${page}&pageSize=${pageSize}&batchId=${batchId}&isReject=${this.state.isReject}&tagId=${this.state.defaultTagValue}`;
   }
 
   _fetchData = () => { 
@@ -201,7 +201,7 @@ class Annotations extends Component{
   }
 
   _updateAnnotation=(annotation)=>{
-    annotation.isReject=true;
+    annotation.isReject=!annotation.isReject;
     put(`${uri.annotation}/${annotation.id}`, annotation).then(response=>{
       if(response.data){
         let newAnnotations=this.state.annotations.filter(res=>{
@@ -232,7 +232,7 @@ class Annotations extends Component{
   }
 
   _handleDropDownChange = (event, index, value) => {
-      this.setState({defaultShowAnnotationValue:value=='reject'?'all':value,isReject:value=='reject'?true:false}, () => {
+      this.setState({defaultShowAnnotationValue:value,isReject:value=='reject'?true:false}, () => {
         this._fetchData();
        });
   }
