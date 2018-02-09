@@ -1,12 +1,23 @@
 import React from 'react';
 import {Link} from 'react-router';
+import {localStorageConstants} from '../../config/localStorageConstants';
+import jwt from 'jsonwebtoken';
 
-const navigations = {
+let token = localStorage.getItem(localStorageConstants.USER_TOKEN);
+let user = jwt.decode(token);
+
+let navigations = {
   'Dashboard' : '/',
   // 'Add Patient' : '/addPatient',
   'Images' : '/images',
+  'Manage Batch' : '/manageBatch',
   'Log Out':'/login'
 }
+
+if(user && user.roles !== "Admin"){
+  delete navigations['Manage Batch'];
+}
+
 
 const NavBar = () => (
 <nav className="navbar navbar-default">

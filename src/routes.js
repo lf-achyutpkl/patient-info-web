@@ -7,7 +7,7 @@ import Dashboard from './views/Dashboard';
 import Login from './views/Login';
 import Annotates from './views/Annotations';
 import AddPatient from './views/AddPatient';
-import BatchUpload from './views/BatchUpload';
+import ManageBatch from './views/ManageBatch';
 import jwt from 'jsonwebtoken';
 import {localStorageConstants} from './config/localStorageConstants';
 
@@ -33,8 +33,9 @@ let routes = (
     <Route component={App} onEnter={requireAuth} >
       <Route path={'/'} component={Dashboard} />
       <Route path={'/addPatient'} component={AddPatient}/>
-      <Route path={'/annotate'} component={Annotate}/>
-      <Route path={'/images'} component={Annotates}/>
+      <Route path={'/annotate'} component={Annotate} loggedUser={getLoggedUser()}/>
+      <Route path={'/images'} component={Annotates} loggedUser={getLoggedUser()}/>
+      <Route path={'/manageBatch'} component={ManageBatch}/>
     </Route>
     <Route path={'/login'} component={Login} />
   </Router>

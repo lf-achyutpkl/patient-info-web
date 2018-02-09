@@ -28,9 +28,10 @@ componentDidMount(){
     return(
         <div >
         <MuiThemeProvider>
-          <div >
           <AppBar
-             title="Login"
+            style={{textAlign:'center'}}
+            showMenuIconButton={false}
+            title="Login"
            />
            <div className="container" style={{width:'300px'}}>
            <TextField
@@ -48,7 +49,6 @@ componentDidMount(){
                />
              <br/>
              <RaisedButton label="Submit" primary={true} style={style} onClick={(event) => this.handleClick(event)}/>
-         </div>
          </div>
          </MuiThemeProvider>
       </div>

@@ -10,7 +10,6 @@ import {Link} from 'react-router';
 import React, {Component} from 'react';
 import AppBar from 'material-ui/AppBar';
 import MenuItem from 'material-ui/MenuItem';
-import RaisedButton from 'material-ui/RaisedButton';
 import Checkbox from 'material-ui/Checkbox';
 import DropDownMenu from 'material-ui/DropDownMenu';
 import Dialog from 'material-ui/Dialog';
@@ -34,6 +33,7 @@ class Annotations extends Component{
       open: false,
       selectedPatientName:'',
       selectedImageUrl:'',
+      selectedBatchId:0,
       pagination: {
         page: 1,
         pageSize: 20,
@@ -48,7 +48,6 @@ class Annotations extends Component{
   componentDidMount(){   
     this._fetchData();
     this._fetchAllTags();
-    // this._fetchBatchAnnotation();
   }
 
   componentDidUpdate(){
@@ -68,6 +67,15 @@ class Annotations extends Component{
 
     return(
       <div>
+        <DropDownMenu value={this.state.selectedBatchId} onChange={this._selectBatch}>
+          <MenuItem value={0} primaryText="Select Batch" />
+          {                          
+            this.state.currentUser.batches && this.state.currentUser.batches.map(batch=>
+              <MenuItem key={batch.id} value={parseInt(batch.id)} primaryText={batch.batchName} />
+            )
+          }
+        </DropDownMenu>
+
         <DropDownMenu value={this.state.defaultShowAnnotationValue} onChange={this._handleDropDownChange}>
           <MenuItem value={'all'} primaryText="Display All Images" />
           <MenuItem value={'true'} primaryText="Display Annotated Images" />
@@ -164,10 +172,16 @@ class Annotations extends Component{
     );
   }
 
+  _selectBatch=(event, index, value)=>{
+    this.setState({selectedBatchId:value}, () => {
+      this._fetchImagesByBranch();
+    });
+  }
+
   _constructQueryParam = () => {  
     let { page, pageSize } = this.state.pagination;
     let batchId=this.state.currentUser.batches.length > 0 ? this.state.currentUser.batches[0].id : 0;
-    return `?annotation=${this.state.isReject?'all':this.state.defaultShowAnnotationValue}&page=${page}&pageSize=${pageSize}&batchId=${batchId}&isReject=${this.state.isReject}&tagId=${this.state.defaultTagValue}`;
+    return `?annotation=${this.state.isReject?'all':this.state.defaultShowAnnotationValue}&page=${page}&pageSize=${pageSize}&batchId=${this.state.selectedBatchId}&isReject=${this.state.isReject}&tagId=${this.state.defaultTagValue}`;
   }
 
   _fetchData = () => { 
@@ -180,11 +194,28 @@ class Annotations extends Component{
     let url = uri.users+'/'+userId; 
     get(url)
     .then(response => {
-        this.setState({currentUser: response.data})        
-        url = uri.images + this._constructQueryParam();
-        get(url)
-        .then(response => this.setState({annotations: response.data, pagination: response.pagination}));
+        this.setState({currentUser: response.data},()=>{
+        if(this.state.currentUser.batches.length > 0){ 
+          console.log(this.state.currentUser.batches[0].id);
+            this.setState({selectedBatchId:parseInt(this.state.currentUser.batches[0].id) },()=>{
+              this._fetchImagesByBranch();
+            });         
+            
+         }
+         else{
+           alert("No Batch Found.");
+         }
+
+        });
+        
+
       });
+   }
+
+   _fetchImagesByBranch = () =>{
+      let url = uri.images + this._constructQueryParam();
+      get(url)
+      .then(response => this.setState({annotations: response.data, pagination: response.pagination}))
    }
 
   _fetchAllTags = () => {   
@@ -255,19 +286,6 @@ class Annotations extends Component{
     this.setState({selectedIndexes});
   }
 
-  // _redirectToEditor = () => {
-  //   return `?id=${this.state.annotations.map((annotation)=>{return annotation.id}).join(',')}`;
-  // }
-
-  // _redirectToMyBatch = () => {
-  //   return `?id=${this.state.batchAnnotations.map((el)=>{return el.annotationId}).join(',')}`;
-  // }
-
-  // _saveBatchAnnotation = () => {
-  //   let userId=this.props.route.loggedUser.id;
-  //   let annotationIds = {ids: this.state.selectedIndexes};
-  //   post(`${uri.users}/${userId}/batch-annotation`, annotationIds);
-  // }
 }
 
 export default Annotations;
