@@ -295,7 +295,7 @@ class AnnotateEditor extends Component {
 
   _constructQueryParam = () => {
     let { page, pageSize } = this.state.pagination;
-    let batchId=this.state.currentUser.batches.length > 0 ? this.state.currentUser.batches[0].id : 0;
+    let batchId=this.props.location.query.batchId;
     return `?annotation=all&page=${page}&pageSize=${pageSize}&batchId=${batchId}&isReject=${this.state.isReject}`;
   }
 
