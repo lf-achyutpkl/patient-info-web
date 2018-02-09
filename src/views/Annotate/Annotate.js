@@ -2,6 +2,7 @@ import React, {Component} from 'react';
 import {get, put} from '../../utils/httpUtils';
 import {baseUrl, uri} from '../../config/uri';
 import ImageAnnotationEdit from '../../lib/components/ImageAnnotationEdit';
+import {localStorageConstants} from '../../config/localStorageConstants';
 import Dialog from 'material-ui/Dialog';
 import FlatButton from 'material-ui/FlatButton';
 import AutoComplete from 'material-ui/AutoComplete';
@@ -209,6 +210,11 @@ class AnnotateEditor extends Component {
 
   };
 
+  _getLoggedUser(){
+    let user=localStorage.getItem(localStorageConstants.LOGGED_USER);
+    return JSON.parse(user);
+  }
+
   _updateAnnotation(annotation){
     put(`${uri.annotation}/${annotation.id}`,annotation).then(response=>{
       let foundIndex = this.state.annotations.findIndex(x => x.id == annotation.id);
@@ -289,21 +295,15 @@ class AnnotateEditor extends Component {
 
   _constructQueryParam = () => {
     let { page, pageSize } = this.state.pagination;
-    let batchId=this.state.currentUser.batches.length > 0 ? this.state.currentUser.batches[0].id : 0;
+    let batchId=this.props.location.query.batchId;
     return `?annotation=all&page=${page}&pageSize=${pageSize}&batchId=${batchId}&isReject=${this.state.isReject}`;
   }
 
 
-  _fetchData = () => {   
-
-    let url = uri.users+'/'+this.props.route.loggedUser.id; 
+  _fetchData = () => {      
+    let url = uri.images + this._constructQueryParam();
     get(url)
-    .then(response => {
-        this.setState({currentUser: response.data})        
-        url = uri.images + this._constructQueryParam();
-        get(url)
-        .then(response => this.setState({annotations: response.data,  isLoading: false}));
-      });
+    .then(response => this.setState({annotations: response.data,  isLoading: false})); 
 
   }
 

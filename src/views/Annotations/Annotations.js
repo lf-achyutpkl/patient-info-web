@@ -95,7 +95,7 @@ class Annotations extends Component{
         {                  
           this.state.annotations.length != 0 &&
             <div style={{float: 'right', marginTop: '15px',marginLeft:'10px'}}>             
-              <Link className="btn btn-primary" to={`/annotate`}>Start Batch Annotating</Link>
+              <Link className="btn btn-primary" to={`/annotate?batchId=${this.state.selectedBatchId}`}>Start Batch Annotating</Link>
             </div>
         }
 
