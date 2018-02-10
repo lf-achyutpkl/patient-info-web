@@ -264,13 +264,13 @@ class Annotations extends Component{
 
   _handleDropDownChange = (event, index, value) => {
       this.setState({defaultShowAnnotationValue:value,isReject:value=='reject'?true:false}, () => {
-        this._fetchData();
+        this._fetchImagesByBranch();
        });
   }
 
   _changeTag = (event, index, value) => {
     this.setState({defaultTagValue:value}, () => {
-      this._fetchData();
+      this._fetchImagesByBranch();
      });
 }
 

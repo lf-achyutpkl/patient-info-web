@@ -140,7 +140,7 @@ class AnnotateEditor extends Component {
             remove={this._remove}
           />
           </div>
-          <div style={{width:"38%",float:"left"}}>
+          <div style={{width:"38%",float:"left",maxHeight:"600px",overflow:"auto"}}>
           <Table>
           <TableHeader displaySelectAll={false} adjustForCheckbox={false}>
             <TableRow>

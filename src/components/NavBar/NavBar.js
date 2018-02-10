@@ -14,7 +14,7 @@ let navigations = {
   'Log Out':'/login'
 }
 
-if(user && user.roles !== "Admin"){
+if(user && user.roles.toLowerCase() !== "admin"){
   delete navigations['Manage Batch'];
 }
 
