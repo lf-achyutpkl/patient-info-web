@@ -66,17 +66,17 @@ export default class Rectangle extends Shape {
 
     if (!square) return;
 
-    if (square.height != 0 && square.width != 0) {
-      //caption
-      let caption = this.showAnnCreateModal(e);
-      if (caption) {
-        square.caption = caption;
-        this.canvas.add(square);
-      }
-    }
-
-    this.canvas.discardActiveObject();
-    this.canvas.renderAll();
+    // if (square.height != 0 && square.width != 0) {
+    //   //caption
+    //   let caption = this.showAnnCreateModal(e);
+    //   if (caption) {
+    //     square.caption = caption;
+    //     this.canvas.add(square);
+    //   }
+    // }
+    //
+    // this.canvas.discardActiveObject();
+    // this.canvas.renderAll();
     this.isListening = false;
 
     if (this.afterDraw)

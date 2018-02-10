@@ -47,6 +47,9 @@ export default class ImageAnnotationEdit extends React.Component {
     );
     this.deleteAnn = this.deleteAnn.bind(this);
     this.getOptions = this.getOptions.bind(this);
+    this.zoomIn = this.zoomIn.bind(this);
+    this.zoomOut = this.zoomOut.bind(this);
+    this.resetZoom = this.resetZoom.bind(this);
   }
 
   componentDidMount() {
@@ -67,6 +70,13 @@ export default class ImageAnnotationEdit extends React.Component {
     canvasElement.setAttribute('height', 600);
     this.elem.appendChild(canvasElement);
     let canvas = new fabric.Canvas(canvasElement);
+
+    var img = new Image();
+    var that = this;
+    img.onload = function() {
+        canvas.setBackgroundImage(img.src, canvas.renderAll.bind(canvas), {width: that.props.width, height: that.props.height});
+    }
+    img.src = this.props.imageURL + '.jpg';
 
     canvas.observe('object:selected', e => {
       let itemId = e.target.itemId;
@@ -164,6 +174,21 @@ export default class ImageAnnotationEdit extends React.Component {
     this.circle.clean();
   }
 
+  zoomIn(){
+    this.canvas.setZoom(this.canvas.getZoom() *1.1);
+    this.canvas.renderAll();
+  }
+
+  zoomOut() {
+    this.canvas.setZoom(this.canvas.getZoom() * 0.9);
+    this.canvas.renderAll();
+  }
+
+  resetZoom(){
+    this.canvas.setZoom(1);
+    this.canvas.renderAll();
+  }
+
   enableAnnModalEdit() {
     let annModal = {
       ...this.state.annModal,
@@ -212,10 +237,10 @@ export default class ImageAnnotationEdit extends React.Component {
     this.setState({ annModal });
   }
 
-  showAnnCreateModal(e) {
+  showAnnCreateModal({ top, left, height }) {
     let annModal = { ...this.state.annModal };
-    annModal.position.top = e.target.top + e.target.height;
-    annModal.position.left = e.target.left;
+    annModal.position.top = top + height;
+    annModal.position.left = left;
     annModal.text = '';
     annModal.display = 'block';
     annModal.isEdit = true;
@@ -254,7 +279,9 @@ export default class ImageAnnotationEdit extends React.Component {
   }
 
   addItem(item) {
-    this.props.add(item);
+    this.props.add(item, itemId => {
+      this.showAnnModal(itemId);
+    });
   }
 
   updateItem(itemId, e) {
@@ -364,14 +391,17 @@ export default class ImageAnnotationEdit extends React.Component {
           <button onClick={this.enableDrawCircle}>Draw Circle</button>
           <button onClick={this.enableDrawPolygon}>Draw Polygon</button>
           <button onClick={this.enableMovement}>Select Tool</button>
+          <button onClick={this.zoomIn}>Zoom In</button>
+          <button onClick={this.zoomOut}>Zoom Out</button>
+          <button onClick={this.resetZoom}>Reset Zoom</button>
           <button onClick={this.saveState}>Save</button>
           <button onClick={this.resetState}>Reset</button>
         </div>
-        <img
+        {/* <img
           src={this.props.imageURL}
           height={this.props.height}
           width={this.props.width}
-        />
+        /> */}
         <canvas height="600" width="800" />
         <div
           className="image-annotation-selection"

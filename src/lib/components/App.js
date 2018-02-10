@@ -101,12 +101,14 @@ export default class App extends React.Component {
         this.setState({data});
     }
 
-    add(item) {
+    add(item, cb) {
         item.id = new Date().getTime();
         let data = this.state.data;
         data.items[item.id] = item;
         this.setState({
             data
+        }, ()=>{
+            cb && cb(item.id);
         });
     }
 
