@@ -71,6 +71,8 @@ export default class ImageAnnotationEdit extends React.Component {
     canvasElement.setAttribute('height', 600);
     this.elem.appendChild(canvasElement);
     let canvas = new fabric.Canvas(canvasElement);
+    canvas.selection = false;
+    var panning = false;
 
     var img = new Image();
     var that = this;
@@ -89,6 +91,22 @@ export default class ImageAnnotationEdit extends React.Component {
       let itemId = e.target.itemId;
       if (!itemId) return;
       this.selectedItemId = itemId;
+    });
+
+    // for image movement after zoom 
+    canvas.on('mouse:up', function (e) {
+        panning = false;
+    });
+    
+    canvas.on('mouse:down', function (e) {
+        panning = true;
+    });
+    canvas.on('mouse:move', function (e) {
+        if (panning && e && e.e) {
+            var units = 10;
+            var delta = new fabric.Point(e.e.movementX, e.e.movementY);
+            canvas.relativePan(delta);
+        }
     });
 
     canvas.on('mouse:out', ({ e }) => {});
