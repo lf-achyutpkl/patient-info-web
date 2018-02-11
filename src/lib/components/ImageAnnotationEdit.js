@@ -442,8 +442,8 @@ export default class ImageAnnotationEdit extends React.Component {
               </li>
               {this.getOptions().map((option, index) => {
                 return (
-                  <li key={index} onClick={this.saveAnn(option)}>
-                    {option}
+                  <li key={index} >
+                    <a href="#" onClick={this.saveAnn(option)}>{option}</a>
                   </li>
                 );
               })}
