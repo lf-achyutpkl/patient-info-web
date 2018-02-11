@@ -196,7 +196,6 @@ class Annotations extends Component{
     .then(response => {
         this.setState({currentUser: response.data},()=>{
         if(this.state.currentUser.batches.length > 0){ 
-          console.log(this.state.currentUser.batches[0].id);
             this.setState({selectedBatchId:parseInt(this.state.currentUser.batches[0].id) },()=>{
               this._fetchImagesByBranch();
             });         
