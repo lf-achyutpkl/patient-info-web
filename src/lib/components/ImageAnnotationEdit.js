@@ -56,7 +56,9 @@ export default class ImageAnnotationEdit extends React.Component {
     this.init();
   }
 
-  componentWillReceiveProps() {
+  componentWillReceiveProps(newProps) {
+    debugger;
+    this.data=newProps.data;
     this.init();
     this.forceUpdate();
   }
@@ -76,7 +78,7 @@ export default class ImageAnnotationEdit extends React.Component {
     img.onload = function() {
         canvas.setBackgroundImage(img.src, canvas.renderAll.bind(canvas), {width: that.props.width, height: that.props.height});
     }
-    img.src = this.props.imageURL + '.jpg';
+    img.src = this.props.imageURL;
 
     canvas.observe('object:selected', e => {
       let itemId = e.target.itemId;
@@ -181,8 +183,16 @@ export default class ImageAnnotationEdit extends React.Component {
   }
 
   zoomOut() {
-    this.canvas.setZoom(this.canvas.getZoom() * 0.9);
+    let zoomScale=1;
+    if((this.canvas.getZoom() * 0.9) > 1 ){
+      zoomScale=this.canvas.getZoom() * 0.9;
+    }
+    else{
+      zoomScale=1;
+    }
+    this.canvas.setZoom(zoomScale);
     this.canvas.renderAll();
+
   }
 
   resetZoom(){
@@ -217,6 +227,7 @@ export default class ImageAnnotationEdit extends React.Component {
   }
 
   showAnnModal(itemId) {
+    debugger;
     console.log('show modal');
 
     let selectedItemId = itemId;
@@ -279,8 +290,9 @@ export default class ImageAnnotationEdit extends React.Component {
     });
   }
 
-  addItem(item) {
+  addItem(item) {   
     this.props.add(item, itemId => {
+      debugger;
       this.showAnnModal(itemId);
     });
   }
@@ -303,12 +315,12 @@ export default class ImageAnnotationEdit extends React.Component {
   }
 
   saveState() {
-    console.log("data",this.data);
     if (this.props.update) this.props.update(this.data);
   }
 
   loadState() {
-    let data = this.props.data || { items: {} };
+    debugger;
+    let data = this.data || { items: {} };
 
     let lastId = this.lastId;
 

@@ -17,7 +17,7 @@ import {
 
 const ANNOTATIONS = 'annotation';
 const SELECTED_INDEX = 'selectedIndex';
-const IMAGE_WIDTH = 700;
+const IMAGE_WIDTH = 800;
 const IMAGE_HEIGHT = 600;
 const OPTIONS = [
   'Microaneurysm',
@@ -39,7 +39,7 @@ class AnnotateEditor extends Component {
 
         this.state = {
           data: {
-            items: {}
+            items:{},
           },
           currentUser:{},
           open: false,
@@ -128,7 +128,7 @@ class AnnotateEditor extends Component {
             <button type="button" className="btn btn-primary" style={{marginBottom:'15px'}} onClick={this._onNext}>Next Image</button>
           }
           </div>
-          <div style={{width:"62%",float:"left"}}>
+          <div style={{width:"71%",float:"left"}}>
           <ImageAnnotationEdit
             imageURL={ baseUrl + this.state.annotations[this.state.currentIndex].imageName}
             height={IMAGE_HEIGHT}
@@ -140,13 +140,13 @@ class AnnotateEditor extends Component {
             remove={this._remove}
           />
           </div>
-          <div style={{width:"38%",float:"left",maxHeight:"600px",overflow:"auto"}}>
-          <Table>
+          <div style={{width:"29%",float:"left",maxHeight:"600px",overflow:"auto"}}>
+          <Table className="tag-list">
           <TableHeader displaySelectAll={false} adjustForCheckbox={false}>
             <TableRow>
               <TableHeaderColumn>Patient Name</TableHeaderColumn>
               <TableHeaderColumn>Tags</TableHeaderColumn>
-              <TableHeaderColumn>Action</TableHeaderColumn>
+              <TableHeaderColumn style={{width:"70px"}}>Action</TableHeaderColumn>
             </TableRow>
           </TableHeader>
           <TableBody showRowHover displayRowCheckbox={false}  >
@@ -156,7 +156,7 @@ class AnnotateEditor extends Component {
                   <TableRow key={annotation.id} >
                     <TableRowColumn><a href="#" onClick={() => this._gotoIndex(index)}>{`${annotation.patient.firstName} ${annotation.patient.lastName}`}</a></TableRowColumn>
                     <TableRowColumn style={{whiteSpace: 'normal',wordWrap: 'break-word'}}>{annotation.tags.map((tag)=>{return tag.tagName}).join(',')}</TableRowColumn>
-                    <TableRowColumn>
+                    <TableRowColumn style={{width:"70px"}}>
                       <a href="#"  onClick={() => this._addTags(annotation)}>Add Tags</a>
                     </TableRowColumn>
                   </TableRow>
@@ -272,6 +272,7 @@ class AnnotateEditor extends Component {
 
   _add = (item, cb) => {
     item.id = new Date().getTime();
+    debugger;
     let data = this.state.data;
     data.items[item.id] = item;
     this.setState({
@@ -306,11 +307,11 @@ class AnnotateEditor extends Component {
     get(url)
       .then(response =>{
         this.setState({ annotations: response.data, isLoading: false },()=>{
-
           if(this.state.annotations[this.state.currentIndex].annotationInfo != null && this.state.annotations[this.state.currentIndex].annotationInfo != ""){
-            data = JSON.parse(this.state.annotations[this.state.currentIndex].annotationInfo);
+            data = JSON.parse(this.state.annotations[this.state.currentIndex].annotationInfo);  
+            debugger;
+            this.setState({data:data});
           }
-          this.setState({data});
           });
         });
   }
