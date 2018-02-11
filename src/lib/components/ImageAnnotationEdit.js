@@ -112,6 +112,7 @@ export default class ImageAnnotationEdit extends React.Component {
     canvas.on('mouse:out', ({ e }) => {});
 
     canvas.on('object:rotating', e => {
+      panning=false;
       let itemId = e.target.itemId;
       if (!itemId) return;
 
@@ -119,12 +120,14 @@ export default class ImageAnnotationEdit extends React.Component {
     });
 
     canvas.on('object:moving', e => {
+      panning=false;
       let itemId = e.target.itemId;
       if (!itemId) return;
       this.updateItem(itemId, e);
     });
 
     canvas.on('object:scaling', e => {
+      panning=false;
       let itemId = e.target.itemId;
       if (!itemId) return;
       this.updateItem(itemId, e);
@@ -191,6 +194,7 @@ export default class ImageAnnotationEdit extends React.Component {
   enableMovement() {
     this.rectangle.clean();
     this.circle.clean();
+    this.canvas.renderAll();
   }
 
   zoomIn(){
