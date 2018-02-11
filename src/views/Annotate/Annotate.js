@@ -133,12 +133,14 @@ class AnnotateEditor extends Component {
     window.location.reload();
   }
 
-  _add = (item) => {
+  _add = (item, cb) => {
     item.id = new Date().getTime();
     let data = this.state.data;
     data.items[item.id] = item;
     this.setState({
         data
+    }, () => {
+      cb && cb(item.id);
     });
   }
 

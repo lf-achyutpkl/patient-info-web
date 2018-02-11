@@ -1288,11 +1288,11 @@ caniuse-lite@^1.0.30000748, caniuse-lite@^1.0.30000792:
   version "1.0.30000792"
   resolved "https://registry.yarnpkg.com/caniuse-lite/-/caniuse-lite-1.0.30000792.tgz#d0cea981f8118f3961471afbb43c9a1e5bbf0332"
 
-canvas@1.6.x:
-  version "1.6.9"
-  resolved "https://registry.yarnpkg.com/canvas/-/canvas-1.6.9.tgz#e3f95cec7b16bf2d6f3fc725c02d940d3258f69b"
+canvas@1.4.x:
+  version "1.4.0"
+  resolved "https://registry.yarnpkg.com/canvas/-/canvas-1.4.0.tgz#5071559b39f8a21964486e6e36b1c42b02392d51"
   dependencies:
-    nan "^2.4.0"
+    nan "^2.3.2"
 
 capture-stack-trace@^1.0.0:
   version "1.0.0"
@@ -2542,11 +2542,11 @@ extsprintf@^1.2.0:
   version "1.4.0"
   resolved "https://registry.yarnpkg.com/extsprintf/-/extsprintf-1.4.0.tgz#e2689f8f356fad62cca65a3a91c5df5f9551692f"
 
-fabric@^1.7.22:
-  version "1.7.22"
-  resolved "https://registry.yarnpkg.com/fabric/-/fabric-1.7.22.tgz#be4a9dfd280f4941fb580498266bc5677fb0d1db"
+fabric@1.6.4:
+  version "1.6.4"
+  resolved "https://registry.yarnpkg.com/fabric/-/fabric-1.6.4.tgz#01f2ab8a527676a4021ddbc67bea83fbc72ce41e"
   optionalDependencies:
-    canvas "1.6.x"
+    canvas "1.4.x"
     jsdom "3.x.x"
     xmldom "0.1.x"
 
@@ -4377,7 +4377,7 @@ mute-stream@0.0.7:
   version "0.0.7"
   resolved "https://registry.yarnpkg.com/mute-stream/-/mute-stream-0.0.7.tgz#3075ce93bc21b8fab43e1bc4da7e8115ed1e7bab"
 
-nan@^2.1.0, nan@^2.3.0, nan@^2.4.0:
+nan@^2.1.0, nan@^2.3.0, nan@^2.3.2:
   version "2.8.0"
   resolved "https://registry.yarnpkg.com/nan/-/nan-2.8.0.tgz#ed715f3fe9de02b57a5e6252d90a96675e1f085a"
 

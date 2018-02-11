@@ -52,7 +52,8 @@ export default class Polygon extends Shape {
   }
 
   addPoint(options) {
-    var random = Math.floor(Math.random() * (this.max - this.min + 1)) + this.min;
+    var random =
+      Math.floor(Math.random() * (this.max - this.min + 1)) + this.min;
     var id = new Date().getTime() + random;
     var circle = new fabric.Circle({
       radius: 5,
@@ -179,6 +180,7 @@ export default class Polygon extends Shape {
           points: points,
           left: polygon.left,
           top: polygon.top,
+          height: polygon.height,
         },
         id => {
           polygon.set('itemId', id);

@@ -80,7 +80,9 @@ export default class App extends React.Component {
         };
 
         this.state = {
-            data: JSON.parse(localStorage.getItem('annData'))
+            data: JSON.parse(localStorage.getItem('annData')) || {
+                items: {}
+            }
         };
 
         this.add = this.add.bind(this);

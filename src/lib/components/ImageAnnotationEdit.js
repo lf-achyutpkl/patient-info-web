@@ -227,6 +227,7 @@ export default class ImageAnnotationEdit extends React.Component {
     let { top, left, height, caption } = item;
 
     let annModal = { ...this.state.annModal };
+    console.log(top, height, top + height)
     annModal.position.top = top + height;
     annModal.position.left = left;
     annModal.text = caption;
