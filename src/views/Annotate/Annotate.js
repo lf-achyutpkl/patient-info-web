@@ -272,7 +272,6 @@ class AnnotateEditor extends Component {
 
   _add = (item, cb) => {
     item.id = new Date().getTime();
-    debugger;
     let data = this.state.data;
     data.items[item.id] = item;
     this.setState({
@@ -309,7 +308,6 @@ class AnnotateEditor extends Component {
         this.setState({ annotations: response.data, isLoading: false },()=>{
           if(this.state.annotations[this.state.currentIndex].annotationInfo != null && this.state.annotations[this.state.currentIndex].annotationInfo != ""){
             data = JSON.parse(this.state.annotations[this.state.currentIndex].annotationInfo);  
-            debugger;
             this.setState({data:data});
           }
           });

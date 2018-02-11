@@ -57,7 +57,6 @@ export default class ImageAnnotationEdit extends React.Component {
   }
 
   componentWillReceiveProps(newProps) {
-    debugger;
     this.data=newProps.data;
     this.init();
     this.forceUpdate();
@@ -147,7 +146,6 @@ export default class ImageAnnotationEdit extends React.Component {
   }
 
   shouldComponentUpdate(props, nextState) {
-    console.log("should comp update");
     return true;
   }
 
@@ -215,7 +213,6 @@ export default class ImageAnnotationEdit extends React.Component {
   }
 
   hideAnnModal() {
-    console.log('hide modal');
     let selectedItemId = null;
     this.selectedItemId = selectedItemId;
 
@@ -227,8 +224,6 @@ export default class ImageAnnotationEdit extends React.Component {
   }
 
   showAnnModal(itemId) {
-    debugger;
-    console.log('show modal');
 
     let selectedItemId = itemId;
     this.selectedItemId = selectedItemId;
@@ -238,7 +233,6 @@ export default class ImageAnnotationEdit extends React.Component {
     let { top, left, height, caption } = item;
 
     let annModal = { ...this.state.annModal };
-    console.log(top, height, top + height)
     annModal.position.top = top + height;
     annModal.position.left = left;
     annModal.text = caption;
@@ -292,7 +286,6 @@ export default class ImageAnnotationEdit extends React.Component {
 
   addItem(item) {   
     this.props.add(item, itemId => {
-      debugger;
       this.showAnnModal(itemId);
     });
   }
@@ -319,7 +312,6 @@ export default class ImageAnnotationEdit extends React.Component {
   }
 
   loadState() {
-    debugger;
     let data = this.data || { items: {} };
 
     let lastId = this.lastId;
