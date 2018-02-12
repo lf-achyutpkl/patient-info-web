@@ -84,6 +84,7 @@ export default class ImageAnnotationEdit extends React.Component {
       let itemId = e.target.itemId;
       if (!itemId) return;
       this.showAnnModal(itemId);
+      this.selectedItem = e.target;
     });
 
     canvas.on('mouse:over', e => {
@@ -209,7 +210,7 @@ export default class ImageAnnotationEdit extends React.Component {
   hideAnnModal() {
     console.log('hide modal');
     let selectedItemId = null;
-    this.selectedItem = null;
+    // this.selectedItem = null;
     this.selectedItemId = selectedItemId;
 
     let annModal = { ...this.state.annModal };
@@ -220,9 +221,6 @@ export default class ImageAnnotationEdit extends React.Component {
   }
 
   showAnnModal(itemId) {
-    console.log('show modal');
-    console.log(itemId, this.data);
-
     let selectedItemId = itemId;
     this.selectedItemId = selectedItemId;
 
@@ -267,9 +265,11 @@ export default class ImageAnnotationEdit extends React.Component {
       if (!item) return;
       this.data.items[this.selectedItemId]['caption'] = option.label;
       this.data.items[this.selectedItemId]['stroke'] = option.color;
-      this.selectedItem['stroke'] = option.color;
+      if(this.selectedItem != null){
+        this.selectedItem['stroke'] = option.color
+      }
 
-      // this.canvas.renderAll();
+      this.canvas.renderAll();
       this.hideAnnModal();
     };
   }
