@@ -52,15 +52,21 @@ export default class ImageAnnotationEdit extends React.Component {
     this.zoomIn = this.zoomIn.bind(this);
     this.zoomOut = this.zoomOut.bind(this);
     this.resetZoom = this.resetZoom.bind(this);
+    this.handleEscKey = this.handleEscKey.bind(this);
   }
 
   componentDidMount() {
     this.init();
+    document.addEventListener("keydown", this.handleEscKey, false);
   }
 
   componentWillReceiveProps() {
     this.init();
     this.forceUpdate();
+  }
+
+  componentWillUnmount() {
+    document.removeEventListener("keydown", this.handleEscKey, false);
   }
 
   init() {
@@ -279,12 +285,23 @@ export default class ImageAnnotationEdit extends React.Component {
     let item = this.data.items[itemId];
     if (!item) return;
     this.props.remove(item);
+    this.hideAnnModal();
   }
 
   resetState() {
     this.setState({
       resetComponentState: true,
     });
+  }
+
+  handleEscKey(){
+    let itemId = this.selectedItemId;
+    let item = this.data.items[itemId];
+    if(item != null && !item.caption){ // newly created item will not have caption key
+      this.deleteAnn();
+    } else {
+      this.hideAnnModal();
+    }
   }
 
   addItem(item) {
