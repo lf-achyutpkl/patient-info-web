@@ -58,7 +58,8 @@ export default class ImageAnnotationEdit extends React.Component {
     this.init();
   }
 
-  componentWillReceiveProps() {
+  componentWillReceiveProps(newProps) {
+    this.data=newProps.data;
     this.init();
     this.forceUpdate();
   }
@@ -72,13 +73,15 @@ export default class ImageAnnotationEdit extends React.Component {
     canvasElement.setAttribute('height', 600);
     this.elem.appendChild(canvasElement);
     let canvas = new fabric.Canvas(canvasElement);
+    canvas.selection = false;
+    var panning = false;
 
     var img = new Image();
     var that = this;
     img.onload = function() {
         canvas.setBackgroundImage(img.src, canvas.renderAll.bind(canvas), {width: that.props.width, height: that.props.height});
     }
-    img.src = this.props.imageURL + '.jpg';
+    img.src = this.props.imageURL;
 
     canvas.observe('object:selected', e => {
       let itemId = e.target.itemId;
@@ -94,9 +97,26 @@ export default class ImageAnnotationEdit extends React.Component {
       this.selectedItemId = itemId;
     });
 
+    // for image movement after zoom 
+    canvas.on('mouse:up', function (e) {
+        panning = false;
+    });
+    
+    canvas.on('mouse:down', function (e) {
+        panning = true;
+    });
+    canvas.on('mouse:move', function (e) {
+        if (panning && e && e.e) {
+            var units = 10;
+            var delta = new fabric.Point(e.e.movementX, e.e.movementY);
+            canvas.relativePan(delta);
+        }
+    });
+
     canvas.on('mouse:out', ({ e }) => {});
 
     canvas.on('object:rotating', e => {
+      panning=false;
       let itemId = e.target.itemId;
       if (!itemId) return;
 
@@ -104,12 +124,14 @@ export default class ImageAnnotationEdit extends React.Component {
     });
 
     canvas.on('object:moving', e => {
+      panning=false;
       let itemId = e.target.itemId;
       if (!itemId) return;
       this.updateItem(itemId, e);
     });
 
     canvas.on('object:scaling', e => {
+      panning=false;
       let itemId = e.target.itemId;
       if (!itemId) return;
       this.updateItem(itemId, e);
@@ -176,6 +198,7 @@ export default class ImageAnnotationEdit extends React.Component {
   enableMovement() {
     this.rectangle.clean();
     this.circle.clean();
+    this.canvas.renderAll();
   }
 
   zoomIn(){
@@ -184,8 +207,16 @@ export default class ImageAnnotationEdit extends React.Component {
   }
 
   zoomOut() {
-    this.canvas.setZoom(this.canvas.getZoom() * 0.9);
+    let zoomScale=1;
+    if((this.canvas.getZoom() * 0.9) > 1 ){
+      zoomScale=this.canvas.getZoom() * 0.9;
+    }
+    else{
+      zoomScale=1;
+    }
+    this.canvas.setZoom(zoomScale);
     this.canvas.renderAll();
+
   }
 
   resetZoom(){
@@ -208,7 +239,6 @@ export default class ImageAnnotationEdit extends React.Component {
   }
 
   hideAnnModal() {
-    console.log('hide modal');
     let selectedItemId = null;
     // this.selectedItem = null;
     this.selectedItemId = selectedItemId;
@@ -229,7 +259,6 @@ export default class ImageAnnotationEdit extends React.Component {
     let { top, left, height, caption } = item;
 
     let annModal = { ...this.state.annModal };
-    console.log(top, height, top + height)
     annModal.position.top = top + height;
     annModal.position.left = left;
     annModal.text = caption;
@@ -287,7 +316,7 @@ export default class ImageAnnotationEdit extends React.Component {
     });
   }
 
-  addItem(item) {
+  addItem(item) {   
     this.props.add(item, itemId => {
       this.showAnnModal(itemId);
     });
@@ -315,7 +344,7 @@ export default class ImageAnnotationEdit extends React.Component {
   }
 
   loadState() {
-    let data = this.props.data || { items: {} };
+    let data = this.data || { items: {} };
 
     let lastId = this.lastId;
 
@@ -445,8 +474,8 @@ export default class ImageAnnotationEdit extends React.Component {
               </li>
               {this.getOptions().map((option, index) => {
                 return (
-                  <li key={index} onClick={this.saveAnn(option)}>
-                    {option.label}
+                  <li key={index}>
+                    <a href="#" onClick={this.saveAnn(option)}>{option.label}</a>
                   </li>
                 );
               })}

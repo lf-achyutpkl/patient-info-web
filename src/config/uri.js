@@ -7,5 +7,9 @@ export const uri = {
   images: `${apiUrl}annotations`,
   uploadImages: `${apiUrl}patients/images`,
   patients: `${apiUrl}patients`,
-  annotation: `${apiUrl}annotations`
+  annotation: `${apiUrl}annotations`,
+  users:`${apiUrl}users`,
+  authenticate:`${apiUrl}users/authenticate`,
+  tags:`${apiUrl}tags`,
+  batches:`${apiUrl}batches`
 }
