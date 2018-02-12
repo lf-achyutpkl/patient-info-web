@@ -64,7 +64,10 @@ export default class Rectangle extends Shape {
     // MyObject = this.canvas.getActiveObject().get('id');
     var square = this.canvas.getActiveObject();
 
-    if (!square) return;
+    if(!square || square.height === 0 || square.width === 0){
+      this.canvas.discardActiveObject();
+      return;
+    }
 
     // if (square.height != 0 && square.width != 0) {
     //   //caption

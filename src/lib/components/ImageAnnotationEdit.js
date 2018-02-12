@@ -24,6 +24,8 @@ export default class ImageAnnotationEdit extends React.Component {
         searchText: '',
       },
     };
+
+    this.selectedItem = null;
     this.selectedItemId = null;
 
     this.enableDrawRect = this.enableDrawRect.bind(this);
@@ -85,11 +87,13 @@ export default class ImageAnnotationEdit extends React.Component {
       let itemId = e.target.itemId;
       if (!itemId) return;
       this.showAnnModal(itemId);
+      this.selectedItem = e.target;
     });
 
     canvas.on('mouse:over', e => {
       let itemId = e.target.itemId;
       if (!itemId) return;
+      this.selectedItem = e.target;
       this.selectedItemId = itemId;
     });
 
@@ -236,6 +240,7 @@ export default class ImageAnnotationEdit extends React.Component {
 
   hideAnnModal() {
     let selectedItemId = null;
+    // this.selectedItem = null;
     this.selectedItemId = selectedItemId;
 
     let annModal = { ...this.state.annModal };
@@ -246,7 +251,6 @@ export default class ImageAnnotationEdit extends React.Component {
   }
 
   showAnnModal(itemId) {
-
     let selectedItemId = itemId;
     this.selectedItemId = selectedItemId;
 
@@ -288,7 +292,13 @@ export default class ImageAnnotationEdit extends React.Component {
       if (!this.selectedItemId) return;
       let item = this.data.items[this.selectedItemId];
       if (!item) return;
-      this.data.items[this.selectedItemId]['caption'] = option;
+      this.data.items[this.selectedItemId]['caption'] = option.label;
+      this.data.items[this.selectedItemId]['stroke'] = option.color;
+      if(this.selectedItem != null){
+        this.selectedItem['stroke'] = option.color
+      }
+
+      this.canvas.renderAll();
       this.hideAnnModal();
     };
   }
@@ -349,7 +359,7 @@ export default class ImageAnnotationEdit extends React.Component {
           left: item.left,
           top: item.top,
           fill: 'transparent',
-          stroke: 'red',
+          stroke: item.stroke || 'red',
           angle: item.angle,
           scaleX: item.scaleX,
           scaleY: item.scaleY,
@@ -362,7 +372,7 @@ export default class ImageAnnotationEdit extends React.Component {
           left: item.left,
           top: item.top,
           fill: 'transparent',
-          stroke: 'red',
+          stroke: item.stroke || 'red',
           angle: item.angle,
           scaleX: item.scaleX,
           scaleY: item.scaleY,
@@ -374,7 +384,7 @@ export default class ImageAnnotationEdit extends React.Component {
           top: item.top,
           left: item.left,
           fill: 'transparent',
-          stroke: 'red',
+          stroke: item.stroke || 'red',
           opacity: 1,
           hasBorders: false,
           hasControls: false,
@@ -398,7 +408,7 @@ export default class ImageAnnotationEdit extends React.Component {
   getOptions() {
     return this.props.options.filter(option => {
       return (
-        option
+        option.label
           .toLowerCase()
           .indexOf(this.state.annModal.searchText.toLowerCase()) > -1
       );
@@ -464,8 +474,8 @@ export default class ImageAnnotationEdit extends React.Component {
               </li>
               {this.getOptions().map((option, index) => {
                 return (
-                  <li key={index} >
-                    <a href="#" onClick={this.saveAnn(option)}>{option}</a>
+                  <li key={index}>
+                    <a href="#" onClick={this.saveAnn(option)}>{option.label}</a>
                   </li>
                 );
               })}

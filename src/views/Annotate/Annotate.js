@@ -20,16 +20,16 @@ const SELECTED_INDEX = 'selectedIndex';
 const IMAGE_WIDTH = 800;
 const IMAGE_HEIGHT = 600;
 const OPTIONS = [
-  'Microaneurysm',
-  'Haemorrhages',
-  'Venous bedding ',
-  'Intraretinal microvascular abnormalities(IRMA)',
-  'New vessels at the disc (NVD)',
-  'New vessels elsewhere (NVE)',
-  'Vitreous haemorrhage',
-  'Pre retinal haemorrrhage',
-  'Hard exudates',
-  'Retinal thickening',
+  {label: 'Microaneurysm', color: 'green'},
+  {label: 'Haemorrhages', color: 'blue'},
+  {label: 'Venous bedding', color: 'yellow'},
+  {label: 'Intraretinal microvascular abnormalities(IRMA)', color: 'cyan'},
+  {label: 'New vessels at the disc (NVD)', color: 'pink'},
+  {label: 'New vessels elsewhere (NVE)', color: 'maroon'},
+  {label: 'Vitreous haemorrhage', color: 'Aqua'},
+  {label: 'Pre retinal haemorrrhage', color: 'Teal'},
+  {label: 'Hard exudates', color: 'DARKSALMON'},
+  {label: 'Retinal thickening', color: 'PURPLE'}
 ];
 
 class AnnotateEditor extends Component {
