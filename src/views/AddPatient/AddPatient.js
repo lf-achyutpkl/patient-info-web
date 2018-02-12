@@ -5,6 +5,7 @@ import RaisedButton from 'material-ui/RaisedButton';
 import {GridList, GridTile} from 'material-ui/GridList';
 import LinearProgress from 'material-ui/LinearProgress';
 import {RadioButton, RadioButtonGroup} from 'material-ui/RadioButton';
+import {post} from '../../utils/httpUtils';
 
 import {uri} from '../../config/uri';
 import styles from './styles';
@@ -171,7 +172,7 @@ class AddPatient extends Component{
       let patientInfo = {...this.state.data, annotations: images};
 
 
-      axios.post(uri.patients, patientInfo).then(({data}) => {
+      post(uri.patients, patientInfo).then(({data}) => {
         this.setState({isLoading: false});
         this.props.router.push('/');
       })
