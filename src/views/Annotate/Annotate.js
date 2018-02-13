@@ -6,6 +6,8 @@ import {localStorageConstants} from '../../config/localStorageConstants';
 import Dialog from 'material-ui/Dialog';
 import FlatButton from 'material-ui/FlatButton';
 import AutoComplete from 'material-ui/AutoComplete';
+import Chip from 'material-ui/Chip';
+import RaisedButton from 'material-ui/RaisedButton';
 import {
   Table,
   TableRow,
@@ -17,7 +19,7 @@ import {
 
 const ANNOTATIONS = 'annotation';
 const SELECTED_INDEX = 'selectedIndex';
-const IMAGE_WIDTH = 800;
+const IMAGE_WIDTH = 900;
 const IMAGE_HEIGHT = 600;
 const OPTIONS = [
   {label: 'Microaneurysm', color: 'green'},
@@ -128,7 +130,7 @@ class AnnotateEditor extends Component {
             <button type="button" className="btn btn-primary" style={{marginBottom:'15px'}} onClick={this._onNext}>Next Image</button>
           }
           </div>
-          <div style={{width:"71%",float:"left"}}>
+          <div style={{width:"82%",float:"left"}}>
           <ImageAnnotationEdit
             imageURL={ baseUrl + this.state.annotations[this.state.currentIndex].imageName}
             height={IMAGE_HEIGHT}
@@ -140,30 +142,38 @@ class AnnotateEditor extends Component {
             remove={this._remove}
           />
           </div>
-          <div style={{width:"29%",float:"left",maxHeight:"600px",overflow:"auto"}}>
+          <div style={{width:"18%",float:"left"}}>
+          <div>
+            <label>Tags : </label>
+            {this.state.annotations[this.state.currentIndex].tags.map((tag, index)=>{
+              return(
+              <Chip style={{display:"inline-block",marginLeft:"5px"}} key={index}>
+              {tag.tagName}
+              </Chip>
+              )
+            })
+            }
+            <RaisedButton label="Add Tags" primary={true} onClick={() => this._addTags(this.state.annotations[this.state.currentIndex])} style={{display:"block",marginTop:"10px"}}/>
+          </div>
+          <div  style={{maxHeight:"440px",overflow:"auto",marginTop:"10px"}}>
           <Table className="tag-list">
           <TableHeader displaySelectAll={false} adjustForCheckbox={false}>
             <TableRow>
               <TableHeaderColumn>Patient Name</TableHeaderColumn>
-              <TableHeaderColumn>Tags</TableHeaderColumn>
-              <TableHeaderColumn style={{width:"70px"}}>Action</TableHeaderColumn>
             </TableRow>
           </TableHeader>
           <TableBody showRowHover displayRowCheckbox={false}  >
             {
               this.state.annotations &&
                 this.state.annotations.map((annotation,index) =>
-                  <TableRow key={annotation.id} >
-                    <TableRowColumn><a href="#" onClick={() => this._gotoIndex(index)}>{`${annotation.patient.firstName} ${annotation.patient.lastName}`}</a></TableRowColumn>
-                    <TableRowColumn style={{whiteSpace: 'normal',wordWrap: 'break-word'}}>{annotation.tags.map((tag)=>{return tag.tagName}).join(',')}</TableRowColumn>
-                    <TableRowColumn style={{width:"70px"}}>
-                      <a href="#"  onClick={() => this._addTags(annotation)}>Add Tags</a>
-                    </TableRowColumn>
+                  <TableRow key={annotation.id} style={{background:this.state.currentIndex==index?"rgba(224, 224, 223, 1)":""}}>
+                    <TableRowColumn><a href="#" onClick={() => this._setAnnotationsIndex(index)}>{`${annotation.patient.firstName} ${annotation.patient.lastName}`}</a></TableRowColumn>
                   </TableRow>
                 )
             }
           </TableBody>
         </Table>
+          </div>
           </div>
           
           <Dialog
@@ -192,14 +202,6 @@ class AnnotateEditor extends Component {
       );
     }
 
-    // _fetchAnnotation = () => {
-    //   get(`${uri.annotation}/${this.state.annotationIds[this.state.currentIndex]}`)
-    //   .then(response => {
-    //     let imageUrl = baseUrl + response.data.imageName;
-    //     this.setState({ annotation: response.data, imageUrl, isLoading: false });
-    //   })
-    // }
-
   update = (data) => {
     let oldCanvas = document.getElementById('canvas');
     oldCanvas = null;
@@ -216,6 +218,7 @@ class AnnotateEditor extends Component {
   }
 
   _updateAnnotation(annotation){
+    console.log("update",annotation);
     put(`${uri.annotation}/${annotation.id}`,annotation).then(response=>{
       let foundIndex = this.state.annotations.findIndex(x => x.id == annotation.id);
       let newAnnotations=this.state.annotations;
@@ -259,15 +262,11 @@ class AnnotateEditor extends Component {
   };
 
   _onNext = () => {
-    localStorage.setItem(SELECTED_INDEX,JSON.stringify(this.state.currentIndex+1));
-    window.location.reload()
-  //  this.setState({currentIndex:this.state.currentIndex+1});
+    this._setAnnotationsIndex(this.state.currentIndex+1);
   }
 
   _onPrevious = () => {
-    localStorage.setItem(SELECTED_INDEX,JSON.stringify(this.state.currentIndex-1));
-    window.location.reload()
-    // this.setState({currentIndex:this.state.currentIndex-1});
+    this._setAnnotationsIndex(this.state.currentIndex-1);
   }
 
   _add = (item, cb) => {
@@ -288,9 +287,17 @@ class AnnotateEditor extends Component {
     data.items = items;
     this.setState({data});
   }
-  _gotoIndex=(index)=>{
+
+  _setAnnotationsIndex=(index)=>{
+    let data = {items: {}};
     localStorage.setItem(SELECTED_INDEX,JSON.stringify(index));
-    window.location.reload()
+    this.setState({currentIndex:index},()=>{
+      console.log("current Index",this.state.currentIndex);   
+      if(this.state.annotations[this.state.currentIndex].annotationInfo != null && this.state.annotations[this.state.currentIndex].annotationInfo != ""){
+        data = JSON.parse(this.state.annotations[this.state.currentIndex].annotationInfo); 
+      }
+      this.setState({data});
+    });
   }
 
   _constructQueryParam = () => {
@@ -300,16 +307,16 @@ class AnnotateEditor extends Component {
   }
 
 
-  _fetchData = () => {   
+  _fetchData = () => { 
     let url = uri.images + this._constructQueryParam();
     let data = {items: {}};
     get(url)
       .then(response =>{
-        this.setState({ annotations: response.data, isLoading: false },()=>{
+        this.setState({ annotations: response.data, isLoading: false,currentIndex:0 },()=>{
           if(this.state.annotations[this.state.currentIndex].annotationInfo != null && this.state.annotations[this.state.currentIndex].annotationInfo != ""){
-            data = JSON.parse(this.state.annotations[this.state.currentIndex].annotationInfo);  
-            this.setState({data:data});
+            data = JSON.parse(this.state.annotations[this.state.currentIndex].annotationInfo);
           }
+          this.setState({data:data});
           });
         });
   }
