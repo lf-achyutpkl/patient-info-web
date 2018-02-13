@@ -7,9 +7,9 @@ let token = localStorage.getItem(localStorageConstants.USER_TOKEN);
 let user = jwt.decode(token);
 
 let navigations = {
-  'Dashboard' : '/',
+  // 'Dashboard' : '/',
   // 'Add Patient' : '/addPatient',
-  'Images' : '/images',
+  'Images' : '/',
   'Manage Batch' : '/manageBatch',
   'Log Out':'/login'
 }

@@ -69,8 +69,8 @@ export default class ImageAnnotationEdit extends React.Component {
     if (preElem) this.elem.removeChild(preElem);
 
     let canvasElement = document.createElement('canvas');
-    canvasElement.setAttribute('width', 800);
-    canvasElement.setAttribute('height', 600);
+    canvasElement.setAttribute('width', this.props.width);
+    canvasElement.setAttribute('height', this.props.height);
     this.elem.appendChild(canvasElement);
     let canvas = new fabric.Canvas(canvasElement);
     canvas.selection = false;
@@ -433,14 +433,14 @@ export default class ImageAnnotationEdit extends React.Component {
           <button onClick={this.zoomOut}>Zoom Out</button>
           <button onClick={this.resetZoom}>Reset Zoom</button>
           <button onClick={this.saveState}>Save</button>
-          <button onClick={this.resetState}>Reset</button>
+          {/* <button onClick={this.resetState}>Reset</button> */}
         </div>
         {/* <img
           src={this.props.imageURL}
           height={this.props.height}
           width={this.props.width}
         /> */}
-        <canvas height="600" width="800" />
+        <canvas height={this.props.height} width={this.props.width} />
         <div
           className="image-annotation-selection"
           style={{
