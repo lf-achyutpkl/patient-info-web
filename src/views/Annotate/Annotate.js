@@ -8,6 +8,7 @@ import FlatButton from 'material-ui/FlatButton';
 import AutoComplete from 'material-ui/AutoComplete';
 import Chip from 'material-ui/Chip';
 import RaisedButton from 'material-ui/RaisedButton';
+import DropdownTreeSelect from 'react-dropdown-tree-select'
 import {
   Table,
   TableRow,
@@ -58,6 +59,8 @@ class AnnotateEditor extends Component {
             rowCount: 0,
             pageCount: 0
           },
+          diagnosisList:[],
+          diagnosisDropdownTree:[]
         }
     }
 
@@ -143,6 +146,7 @@ class AnnotateEditor extends Component {
           />
           </div>
           <div style={{width:"18%",float:"left"}}>
+          <DropdownTreeSelect className="tree-dropdown" data={this.state.diagnosisDropdownTree} onChange={this._onDiagnosisChange} />
           <div>
             <label>Tags : </label>
             {this.state.annotations[this.state.currentIndex].tags.map((tag, index)=>{
@@ -156,7 +160,7 @@ class AnnotateEditor extends Component {
             <RaisedButton label="Add Tags" primary={true} onClick={() => this._addTags(this.state.annotations[this.state.currentIndex])} style={{display:"block",marginTop:"10px"}}/>
           </div>
           <div  style={{maxHeight:"440px",overflow:"auto",marginTop:"10px"}}>
-          <Table className="tag-list">
+          <Table className="tags-list">
           <TableHeader displaySelectAll={false} adjustForCheckbox={false}>
             <TableRow>
               <TableHeaderColumn>Patient Name</TableHeaderColumn>
@@ -218,7 +222,6 @@ class AnnotateEditor extends Component {
   }
 
   _updateAnnotation(annotation){
-    console.log("update",annotation);
     put(`${uri.annotation}/${annotation.id}`,annotation).then(response=>{
       let foundIndex = this.state.annotations.findIndex(x => x.id == annotation.id);
       let newAnnotations=this.state.annotations;
@@ -280,6 +283,18 @@ class AnnotateEditor extends Component {
     });
   }
 
+  _addWholeImageAnnotation = (node) => {
+      let item={};
+      item.id = new Date().getTime();
+      item.type="whole_image";
+      item.diagnosisCaption=node.label;
+      item.diagnosisCode=node.value;
+      let data = this.state.data;
+      data.items[item.id] = item;
+      this.setState({data},()=>{
+      });
+  }
+
   _remove = (item) => {
     let data = this.state.data;
     let items = data.items;
@@ -291,12 +306,14 @@ class AnnotateEditor extends Component {
   _setAnnotationsIndex=(index)=>{
     let data = {items: {}};
     localStorage.setItem(SELECTED_INDEX,JSON.stringify(index));
-    this.setState({currentIndex:index},()=>{
-      console.log("current Index",this.state.currentIndex);   
+    this.setState({currentIndex:index},()=>{  
       if(this.state.annotations[this.state.currentIndex].annotationInfo != null && this.state.annotations[this.state.currentIndex].annotationInfo != ""){
         data = JSON.parse(this.state.annotations[this.state.currentIndex].annotationInfo); 
       }
-      this.setState({data});
+      this.setState({data},()=>{
+        let selectedCodes=this._fetchSelectedCodeFromAnnotationInfo();
+        this._resetDiagnosisList(selectedCodes);
+      });
     });
   }
 
@@ -316,7 +333,9 @@ class AnnotateEditor extends Component {
           if(this.state.annotations[this.state.currentIndex].annotationInfo != null && this.state.annotations[this.state.currentIndex].annotationInfo != ""){
             data = JSON.parse(this.state.annotations[this.state.currentIndex].annotationInfo);
           }
-          this.setState({data:data});
+          this.setState({data:data},()=>{
+            this._fetchAllDiagnosis();
+          });
           });
         });
   }
@@ -327,6 +346,84 @@ class AnnotateEditor extends Component {
       .then(response =>{
         this.setState({ tags: response.data });
         });
+  }
+
+  _fetchSelectedCodeFromAnnotationInfo=()=>{
+    let selectedCodes=[];
+    let data=this.state.data;
+    Object.keys(data.items).forEach(itemId => {
+      let item = data.items[itemId];
+      if(item.type=="whole_image"){
+        selectedCodes.push(item.diagnosisCode);
+      }
+    });
+    return selectedCodes;
+  }
+
+  _fetchAllDiagnosis=(selectedCodes)=>{
+    let url=uri.diagnosis;
+    get(url)
+    .then(response =>{
+      this.setState({diagnosisList:response.data},()=>{
+        let selectedCodes=this._fetchSelectedCodeFromAnnotationInfo();
+        this._resetDiagnosisList(selectedCodes);
+      })
+        
+      });
+  }
+
+  _resetDiagnosisList=(selectedCodes)=>{
+  let data=this.state.data;
+  Object.keys(data.items).forEach(itemId => {
+    let item = data.items[itemId];
+    if(item.type=="whole_image"){
+      delete data.items[itemId];
+    }
+  }); 
+  this.setState({data},()=>{
+    let diagnosisTree=[];
+    this.state.diagnosisList.forEach(element => {
+      if(element.parentCode=="0"){
+        let parent={label:element.name,value:element.code,checked:selectedCodes.includes(element.code),expanded:true};
+        if(parent.checked){
+          this._addWholeImageAnnotation(parent);
+        }
+        let childrens=[];
+        this.state.diagnosisList.forEach((children)=>{
+                      if(children.parentCode===element.code){
+                        let childItem={label:children.name,value:children.code,checked:selectedCodes.includes(children.code)};
+                        childrens.push(childItem);
+                        if(childItem.checked){
+                          this._addWholeImageAnnotation(childItem);
+                        }
+                      }
+                    });
+        parent.children=childrens;            
+        diagnosisTree.push(parent);            
+      }
+      
+    });
+    this.setState({ diagnosisDropdownTree: diagnosisTree });
+  });
+ 
+}
+
+  _onDiagnosisChange=(currentNode, selectedNodes) => { 
+      let selectedCodes=[];
+      if(currentNode._parent && currentNode.checked==true){
+        selectedNodes=selectedNodes.filter(node=>{
+          return node._parent != currentNode._parent;
+        });
+      }
+
+      selectedNodes.forEach(node=>{
+        selectedCodes.push(node.value);
+      });
+
+      if(!selectedCodes.includes(currentNode.value) && currentNode.checked==true){
+        selectedCodes.push(currentNode.value);
+      }
+      this._resetDiagnosisList(selectedCodes);
   }
 
 };
