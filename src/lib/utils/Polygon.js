@@ -52,6 +52,7 @@ export default class Polygon extends Shape {
   }
 
   addPoint(options) {
+    var mouse = this.canvas.getPointer(options.e);
     var random =
       Math.floor(Math.random() * (this.max - this.min + 1)) + this.min;
     var id = new Date().getTime() + random;
@@ -60,8 +61,8 @@ export default class Polygon extends Shape {
       fill: '#ffffff',
       stroke: '#333333',
       strokeWidth: 0.5,
-      left: options.e.layerX / this.canvas.getZoom(),
-      top: options.e.layerY / this.canvas.getZoom(),
+      left: mouse.x,
+      top: mouse.y,
       selectable: false,
       hasBorders: false,
       hasControls: false,
@@ -74,12 +75,14 @@ export default class Polygon extends Shape {
         fill: 'red',
       });
     }
+
     var points = [
-      options.e.layerX / this.canvas.getZoom(),
-      options.e.layerY / this.canvas.getZoom(),
-      options.e.layerX / this.canvas.getZoom(),
-      options.e.layerY / this.canvas.getZoom(),
+      mouse.x,
+      mouse.y,
+      mouse.x,
+      mouse.y,
     ];
+
     this.line = new fabric.Line(points, {
       strokeWidth: 2,
       fill: '#999999',
@@ -114,10 +117,11 @@ export default class Polygon extends Shape {
       this.activeShape = polygon;
       this.canvas.renderAll();
     } else {
+      var pos = this.canvas.getPointer(options.e);
       var polyPoint = [
         {
-          x: options.e.layerX / this.canvas.getZoom(),
-          y: options.e.layerY / this.canvas.getZoom(),
+          x: pos.x,
+          y: pos.y
         },
       ];
       var polygon = new fabric.Polygon(polyPoint, {
