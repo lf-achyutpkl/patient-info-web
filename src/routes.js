@@ -31,10 +31,10 @@ function getLoggedUser(){
 let routes = (
   <Router history={browserHistory}>
     <Route component={App} onEnter={requireAuth} >
-      <Route path={'/'} component={Dashboard} />
+      {/* <Route path={'/'} component={Dashboard} /> */}
       <Route path={'/addPatient'} component={AddPatient}/>
       <Route path={'/annotate'} component={Annotate} loggedUser={getLoggedUser()}/>
-      <Route path={'/images'} component={Annotates} loggedUser={getLoggedUser()}/>
+      <Route path={'/'} component={Annotates} loggedUser={getLoggedUser()}/>
       <Route path={'/manageBatch'} component={ManageBatch}/>
     </Route>
     <Route path={'/login'} component={Login} />
