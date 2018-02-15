@@ -84,7 +84,12 @@
   cursor: pointer;
 }
 
-.tag-list thead th,.tag-list tbody td{
+
+.tags-list{
+  display: table;
+}
+
+.tags-list thead th,.tag-list tbody td{
   padding-right:0 !important;
   padding-left:0 !important;
 }
@@ -92,3 +97,19 @@
 .container{
   margin-bottom: 20px;
 }
+
+.tree-dropdown .dropdown,.tree-dropdown .dropdown-content{
+  display: block;
+  width: 215px;
+}
+
+.tree-dropdown label{
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.tag-item .search {
+  border: none;
+}
+
