@@ -46,6 +46,7 @@ class AnnotateEditor extends Component {
           },
           currentUser:{},
           open: false,
+          confirmation_open:false,
           selectedTag:{},
           isLoading: true,
           annotations: [],
@@ -60,7 +61,9 @@ class AnnotateEditor extends Component {
             pageCount: 0
           },
           diagnosisList:[],
-          diagnosisDropdownTree:[]
+          diagnosisDropdownTree:[],
+          hasChanges:false,
+          goToIndex:0
         }
     }
 
@@ -109,6 +112,20 @@ class AnnotateEditor extends Component {
         keyboardFocused={true}
         onClick={this._addTagToAnnotation}
       />,
+      ];
+
+      const actions_confirmation = [
+        <FlatButton
+          label="Cancel"
+          primary={true}
+          onClick={this._handleConfirmationClose}
+        />,
+          <FlatButton
+          label="Proceed"
+          primary={true}
+          keyboardFocused={true}
+          onClick={this._setAnnotationsIndex}
+        />,
       ];
 
       const dataSourceConfig = {
@@ -171,7 +188,7 @@ class AnnotateEditor extends Component {
               this.state.annotations &&
                 this.state.annotations.map((annotation,index) =>
                   <TableRow key={annotation.id} style={{background:this.state.currentIndex==index?"rgba(224, 224, 223, 1)":""}}>
-                    <TableRowColumn><a href="#" onClick={() => this._setAnnotationsIndex(index)}>{`${annotation.patient.firstName} ${annotation.patient.lastName}`}</a></TableRowColumn>
+                    <TableRowColumn><a href="#" onClick={() => this._goToIndex(index)}>{`${annotation.patient.firstName} ${annotation.patient.lastName}`}</a></TableRowColumn>
                   </TableRow>
                 )
             }
@@ -202,11 +219,25 @@ class AnnotateEditor extends Component {
             </div>
         </Dialog>
 
+        
+        <Dialog
+          title="Confirmation"
+          actions={actions_confirmation}
+          modal={false}
+          open={this.state.confirmation_open}
+          onRequestClose={this._handleConfirmationClose}
+          >
+          You have not saved your changes. Are you sure you want to proceed to next image ?
+          </Dialog>
+
         </div>
       );
     }
 
   update = (data) => {
+    console.log("saving data",data);
+    console.log("this.state.diagnosisDropdownTree",this.state.diagnosisDropdownTree);
+    this.setState({hasChanges:false});
     let oldCanvas = document.getElementById('canvas');
     oldCanvas = null;
     let annotation = {...this.state.annotations[this.state.currentIndex], annotationInfo: JSON.stringify(data)};
@@ -262,14 +293,34 @@ class AnnotateEditor extends Component {
 
   _handleClose = () => {
     this.setState({open: false});
-  };
+  }
+
+  _handleConfirmationClose = () => {
+    this.setState({confirmation_open: false});
+  }
 
   _onNext = () => {
+    if(this.state.hasChanges){
+       this.setState({confirmation_open: true,goToIndex:this.state.currentIndex+1});
+    }else{
     this._setAnnotationsIndex(this.state.currentIndex+1);
+    }
   }
 
   _onPrevious = () => {
-    this._setAnnotationsIndex(this.state.currentIndex-1);
+    if(this.state.hasChanges){
+      this.setState({confirmation_open: true,goToIndex:this.state.currentIndex-1});
+    }else{
+      this._setAnnotationsIndex(this.state.currentIndex-1);
+    }
+  }
+
+  _goToIndex = (index) => {
+    if(this.state.hasChanges){
+      this.setState({confirmation_open: true,goToIndex:index});
+    }else{
+      this._setAnnotationsIndex(index);
+    }
   }
 
   _add = (item, cb) => {
@@ -277,7 +328,7 @@ class AnnotateEditor extends Component {
     let data = this.state.data;
     data.items[item.id] = item;
     this.setState({
-        data
+        data:data,hasChanges:true
     }, () => {
       cb && cb(item.id);
     });
@@ -292,6 +343,7 @@ class AnnotateEditor extends Component {
       let data = this.state.data;
       data.items[item.id] = item;
       this.setState({data},()=>{
+        // console.log("after set data",data);
       });
   }
 
@@ -300,10 +352,14 @@ class AnnotateEditor extends Component {
     let items = data.items;
     delete items[item.id];
     data.items = items;
-    this.setState({data});
+    this.setState({data:data,hasChanges:true});
   }
 
-  _setAnnotationsIndex=(index)=>{
+  _setAnnotationsIndex=(index=0)=>{
+    if(this.state.confirmation_open){
+      index=this.state.goToIndex;
+      this.setState({confirmation_open: false,hasChanges: false});
+    }
     let data = {items: {}};
     localStorage.setItem(SELECTED_INDEX,JSON.stringify(index));
     this.setState({currentIndex:index},()=>{  
@@ -361,7 +417,7 @@ class AnnotateEditor extends Component {
   }
 
   _fetchAllDiagnosis=(selectedCodes)=>{
-    let url=uri.diagnosis;
+    let url=uri.annotationLabels+'/whole_image_annotation';
     get(url)
     .then(response =>{
       this.setState({diagnosisList:response.data},()=>{
@@ -373,28 +429,31 @@ class AnnotateEditor extends Component {
   }
 
   _resetDiagnosisList=(selectedCodes)=>{
+  console.log("selected codes",selectedCodes);
   let data=this.state.data;
   Object.keys(data.items).forEach(itemId => {
     let item = data.items[itemId];
     if(item.type=="whole_image"){
       delete data.items[itemId];
+      console.log("delete item ")
     }
-  }); 
+  });
+
   this.setState({data},()=>{
     let diagnosisTree=[];
     this.state.diagnosisList.forEach(element => {
-      if(element.parentCode=="0"){
-        let parent={label:element.name,value:element.code,checked:selectedCodes.includes(element.code),expanded:true};
+      if(element.parentId===0){
+        let parent={label:element.displayLabel,value:element.value,checked:selectedCodes.includes(element.value),expanded:true};
         if(parent.checked){
-          this._addWholeImageAnnotation(parent);
+          setTimeout(()=>{ this._addWholeImageAnnotation(parent); }, 1000);          
         }
         let childrens=[];
         this.state.diagnosisList.forEach((children)=>{
-                      if(children.parentCode===element.code){
-                        let childItem={label:children.name,value:children.code,checked:selectedCodes.includes(children.code)};
+                      if(children.parentId==parseInt(element.id)){
+                        let childItem={label:children.displayLabel,value:children.value,checked:selectedCodes.includes(children.value)};
                         childrens.push(childItem);
                         if(childItem.checked){
-                          this._addWholeImageAnnotation(childItem);
+                          setTimeout(()=> { this._addWholeImageAnnotation(childItem); }, 1000);
                         }
                       }
                     });
@@ -409,10 +468,11 @@ class AnnotateEditor extends Component {
 }
 
   _onDiagnosisChange=(currentNode, selectedNodes) => { 
+      this.setState({hasChanges:true});
       let selectedCodes=[];
       if(currentNode._parent && currentNode.checked==true){
         selectedNodes=selectedNodes.filter(node=>{
-          return node._parent != currentNode._parent;
+          return (node._parent && node._parent != currentNode._parent) || node.value==currentNode.value ;
         });
       }
 

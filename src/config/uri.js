@@ -12,5 +12,5 @@ export const uri = {
   authenticate:`${apiUrl}users/authenticate`,
   tags:`${apiUrl}tags`,
   batches:`${apiUrl}batches`,
-  diagnosis:`${apiUrl}diagnosis`
+  annotationLabels:`${apiUrl}annotationLabels`
 }
