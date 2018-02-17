@@ -429,13 +429,11 @@ class AnnotateEditor extends Component {
   }
 
   _resetDiagnosisList=(selectedCodes)=>{
-  console.log("selected codes",selectedCodes);
   let data=this.state.data;
   Object.keys(data.items).forEach(itemId => {
     let item = data.items[itemId];
     if(item.type=="whole_image"){
       delete data.items[itemId];
-      console.log("delete item ")
     }
   });
 
