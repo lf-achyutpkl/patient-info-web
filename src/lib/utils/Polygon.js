@@ -57,7 +57,7 @@ export default class Polygon extends Shape {
       Math.floor(Math.random() * (this.max - this.min + 1)) + this.min;
     var id = new Date().getTime() + random;
     var circle = new fabric.Circle({
-      radius: 5,
+      radius: 5 / this.canvas.getZoom(),    // To make point smaller on zoomed screen as well
       fill: '#ffffff',
       stroke: '#333333',
       strokeWidth: 0.5,
