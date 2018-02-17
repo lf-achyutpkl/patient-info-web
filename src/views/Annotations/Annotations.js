@@ -95,7 +95,7 @@ class Annotations extends Component{
         {                  
           this.state.annotations.length != 0 &&
             <div style={{float: 'right', marginTop: '15px',marginLeft:'10px'}}>             
-              <Link className="btn btn-primary" to={`/annotate?batchId=${this.state.selectedBatchId}`}>Start Batch Annotating</Link>
+              <Link className="btn btn-primary" to={`/annotate?batchId=${this.state.selectedBatchId}`}>Start Annotation</Link>
             </div>
         }
 
@@ -104,9 +104,9 @@ class Annotations extends Component{
             <TableRow>
               {/* <TableHeaderColumn style={{ width:'100px' }}>Select</TableHeaderColumn> */}
               <TableHeaderColumn>Patient Name</TableHeaderColumn>
-              <TableHeaderColumn>Is Annotated</TableHeaderColumn>
+              {/* <TableHeaderColumn>Is Annotated</TableHeaderColumn> */}
               <TableHeaderColumn>Tags</TableHeaderColumn>
-              <TableHeaderColumn>Remarks</TableHeaderColumn>
+              {/* <TableHeaderColumn>Remarks</TableHeaderColumn> */}
               <TableHeaderColumn>Action</TableHeaderColumn>
             </TableRow>
           </TableHeader>
@@ -122,9 +122,9 @@ class Annotations extends Component{
                     />
                     </TableRowColumn> */}
                     <TableRowColumn>{`${annotation.patient.firstName} ${annotation.patient.lastName}`}</TableRowColumn>
-                    <TableRowColumn>{`${annotation.annotationInfo != ''}`}</TableRowColumn>
+                    {/* <TableRowColumn>{`${annotation.annotationInfo != ''}`}</TableRowColumn> */}
                     <TableRowColumn>{annotation.tags.map((tag)=>{return tag.tagName}).join(',')}</TableRowColumn>
-                    <TableRowColumn>{annotation.remarks}</TableRowColumn>
+                    {/* <TableRowColumn>{annotation.remarks}</TableRowColumn> */}
                     <TableRowColumn>
                       <a href="#" style={{marginRight:"10px"}} onClick={() => this._updateAnnotation(annotation)}>{annotation.isReject==false?'Reject' : 'Accept'}</a>
                       <a href="#" onClick={() => this._previewImage(annotation.imageName,annotation.patient.firstName,annotation.patient.lastName)}>Preview</a>

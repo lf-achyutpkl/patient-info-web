@@ -11,5 +11,6 @@ export const uri = {
   users:`${apiUrl}users`,
   authenticate:`${apiUrl}users/authenticate`,
   tags:`${apiUrl}tags`,
-  batches:`${apiUrl}batches`
+  batches:`${apiUrl}batches`,
+  annotationLabels:`${apiUrl}annotationLabels`
 }
