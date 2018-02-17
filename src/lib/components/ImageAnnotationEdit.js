@@ -174,6 +174,8 @@ export default class ImageAnnotationEdit extends React.Component {
     this.circle = circle;
     this.polygon = polygon;
     this.loadState();
+
+    this.checkCanvasPosition();
   }
 
   shouldComponentUpdate(props, nextState) {
@@ -333,7 +335,18 @@ export default class ImageAnnotationEdit extends React.Component {
     }
   }
 
+  async checkCanvasPosition() {
+    let zoom = await localStorage.getItem('zoom');
+
+    if(zoom != null){
+      this.canvas.setZoom(JSON.parse(zoom));
+    }
+  }
+
   addItem(item) {
+    let zoomValue = this.canvas.getZoom();
+    localStorage.setItem('zoom', JSON.stringify(zoomValue));
+
     this.props.add(item, itemId => {
       this.showAnnModal(itemId);
     });
