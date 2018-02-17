@@ -51,19 +51,7 @@ export default class Circle extends Shape {
       return;
     }
 
-    // if (circle.height != 0 && circle.width != 0) {
-    //   let caption = this.showAnnCreateModal(e);
-    //   if (caption) {
-    //     circle.caption = caption;
-    //     this.canvas.add(circle);
-    //   }
-    // }
-    //
-    // this.canvas.discardActiveObject();
-    // this.canvas.renderAll();
     this.isListening = false;
-
-    console.log(circle.height, 11);
 
     if (this.afterDraw)
       this.afterDraw(
