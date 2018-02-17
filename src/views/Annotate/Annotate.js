@@ -360,6 +360,7 @@ class AnnotateEditor extends Component {
       index=this.state.goToIndex;
       this.setState({confirmation_open: false,hasChanges: false});
     }
+    localStorage.removeItem('viewportTransform');
     let data = {items: {}};
     localStorage.setItem(SELECTED_INDEX,JSON.stringify(index));
     this.setState({currentIndex:index},()=>{  
@@ -386,6 +387,7 @@ class AnnotateEditor extends Component {
     get(url)
       .then(response =>{
         this.setState({ annotations: response.data, isLoading: false,currentIndex:0 },()=>{
+          localStorage.removeItem('viewportTransform');
           if(this.state.annotations[this.state.currentIndex].annotationInfo != null && this.state.annotations[this.state.currentIndex].annotationInfo != ""){
             data = JSON.parse(this.state.annotations[this.state.currentIndex].annotationInfo);
           }

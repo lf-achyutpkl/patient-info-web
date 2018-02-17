@@ -336,17 +336,14 @@ export default class ImageAnnotationEdit extends React.Component {
   }
 
   async checkCanvasPosition() {
-    let zoom = await localStorage.getItem('zoom');
-
-    if(zoom != null){
-      this.canvas.setZoom(JSON.parse(zoom));
+    let viewportTransform = await localStorage.getItem('viewportTransform');
+    if(viewportTransform != null){
+      this.canvas.viewportTransform=JSON.parse(viewportTransform);
     }
   }
 
   addItem(item) {
-    let zoomValue = this.canvas.getZoom();
-    localStorage.setItem('zoom', JSON.stringify(zoomValue));
-
+    localStorage.setItem('viewportTransform', JSON.stringify(this.canvas.viewportTransform));
     this.props.add(item, itemId => {
       this.showAnnModal(itemId);
     });
