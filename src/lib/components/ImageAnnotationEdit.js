@@ -410,7 +410,6 @@ export default class ImageAnnotationEdit extends React.Component {
 
       if(shape){
       shape.set('itemId', itemId);
-
       this.canvas.add(shape);
       lastId = lastId < itemId ? itemId : lastId;
       }
