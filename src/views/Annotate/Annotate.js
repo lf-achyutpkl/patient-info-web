@@ -237,8 +237,6 @@ class AnnotateEditor extends Component {
     }
 
   update = (data) => {
-    console.log("saving data",data);
-    console.log("this.state.diagnosisDropdownTree",this.state.diagnosisDropdownTree);
     this.setState({hasChanges:false});
     let oldCanvas = document.getElementById('canvas');
     oldCanvas = null;
