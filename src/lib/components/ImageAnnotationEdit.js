@@ -300,7 +300,8 @@ export default class ImageAnnotationEdit extends React.Component {
       if (!this.selectedItemId) return;
       let item = this.data.items[this.selectedItemId];
       if (!item) return;
-      this.data.items[this.selectedItemId]['caption'] = option.label;
+      this.data.items[this.selectedItemId]['code'] = option.value;
+      this.data.items[this.selectedItemId]['caption'] = option.displayLabel;
       this.data.items[this.selectedItemId]['stroke'] = option.color;
       if(this.selectedItem != null){
         this.selectedItem['stroke'] = option.color
@@ -436,7 +437,7 @@ export default class ImageAnnotationEdit extends React.Component {
   getOptions() {
     return this.props.options.filter(option => {
       return (
-        option.label
+        option.displayLabel
           .toLowerCase()
           .indexOf(this.state.annModal.searchText.toLowerCase()) > -1
       );
@@ -503,7 +504,7 @@ export default class ImageAnnotationEdit extends React.Component {
               {this.getOptions().map((option, index) => {
                 return (
                   <li key={index}>
-                    <a href="#" onClick={this.saveAnn(option)}>{option.label}</a>
+                    <a href="#" onClick={this.saveAnn(option)}>{option.displayLabel}</a>
                   </li>
                 );
               })}

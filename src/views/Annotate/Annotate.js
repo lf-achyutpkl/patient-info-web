@@ -23,16 +23,16 @@ const SELECTED_INDEX = 'selectedIndex';
 const IMAGE_WIDTH = 900;
 const IMAGE_HEIGHT = 600;
 const OPTIONS = [
-  {label: 'Microaneurysm', color: 'green'},
-  {label: 'Haemorrhages', color: 'blue'},
-  {label: 'Venous bedding', color: 'yellow'},
-  {label: 'Intraretinal microvascular abnormalities(IRMA)', color: 'cyan'},
-  {label: 'New vessels at the disc (NVD)', color: 'pink'},
-  {label: 'New vessels elsewhere (NVE)', color: 'maroon'},
-  {label: 'Vitreous haemorrhage', color: 'Aqua'},
-  {label: 'Pre retinal haemorrrhage', color: 'Teal'},
-  {label: 'Hard exudates', color: 'DARKSALMON'},
-  {label: 'Retinal thickening', color: 'PURPLE'}
+  // {label: 'Microaneurysm', color: 'green'},
+  // {label: 'Haemorrhages', color: 'blue'},
+  // {label: 'Venous bedding', color: 'yellow'},
+  // {label: 'Intraretinal microvascular abnormalities(IRMA)', color: 'cyan'},
+  // {label: 'New vessels at the disc (NVD)', color: 'pink'},
+  // {label: 'New vessels elsewhere (NVE)', color: 'maroon'},
+  // {label: 'Vitreous haemorrhage', color: 'Aqua'},
+  // {label: 'Pre retinal haemorrrhage', color: 'Teal'},
+  // {label: 'Hard exudates', color: 'DARKSALMON'},
+  // {label: 'Retinal thickening', color: 'PURPLE'}
 ];
 
 class AnnotateEditor extends Component {
@@ -63,7 +63,8 @@ class AnnotateEditor extends Component {
           diagnosisList:[],
           diagnosisDropdownTree:[],
           hasChanges:false,
-          goToIndex:0
+          goToIndex:0,
+          options:[]
         }
     }
 
@@ -87,6 +88,7 @@ class AnnotateEditor extends Component {
     componentDidMount(){
       this._fetchData();
       this._fetchAllTags();
+      this._fetchOptions();
     }
 
     /**
@@ -157,7 +159,7 @@ class AnnotateEditor extends Component {
             width={IMAGE_WIDTH}
             update={this.update}
             data={this.state.data}
-            options={OPTIONS}
+            options={this.state.options}
             add={this._add}
             remove={this._remove}
           />
@@ -403,6 +405,14 @@ class AnnotateEditor extends Component {
     get(url)
       .then(response =>{
         this.setState({ tags: response.data });
+        });
+  }
+
+  _fetchOptions=()=>{
+    let url = uri.annotationLabels+'/image_annotation';;
+    get(url)
+      .then(response =>{
+        this.setState({ options: response.data });
         });
   }
 
