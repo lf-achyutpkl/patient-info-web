@@ -19,7 +19,7 @@ import {baseUrl,uri,} from '../../config/uri';
 import {localStorageConstants} from '../../config/localStorageConstants';
 import {get,post,put} from '../../utils/httpUtils';
 import AutoComplete from 'material-ui/AutoComplete';
-import ReactImageZoom from 'react-image-zoom';
+import ReactImageMagnify from 'react-image-magnify';
 
 class Annotations extends Component{
 
@@ -158,11 +158,30 @@ class Annotations extends Component{
           bodyClassName="image-preview"
         >
         <div style={{overflow:"scroll",maxHeight:"400px"}}>
-        <div >
-          <ReactImageZoom {...{width: 500, height: 350, zoomWidth:400, img: this.state.selectedImageUrl}} />
+        <div style={{width:"60%",display:"inline-block"}}>
+        <ReactImageMagnify {...{
+          smallImage: {
+              alt: this.state.selectedPatientName,
+              isFluidWidth: true,
+              src: this.state.selectedImageUrl,
+              srcSet: [
+                  `${this.state.selectedImageUrl} 687w`,
+                  `${this.state.selectedImageUrl} 770w`,
+                  `${this.state.selectedImageUrl} 861w`,
+                  `${this.state.selectedImageUrl} 955w`
+              ].join(', '),
+              sizes: '(max-width: 480px) 30vw, 80vw'
+          },
+          largeImage: {
+              alt: '',
+              src: this.state.selectedImageUrl,
+              width: 1200,
+              height: 1800
+          }
+      }} />
           {/* <img width="100%" src={this.state.selectedImageUrl} />           */}
         </div>
-        <div className="add-tag-dialog">
+        <div className="add-tag-dialog" style={{width:"40%",display:"inline-block",paddingLeft:"20px",verticalAlign:"top"}}>
             <AutoComplete
               floatingLabelText="Search Tags"
               filter={AutoComplete.noFilter}
