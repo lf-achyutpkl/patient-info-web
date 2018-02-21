@@ -170,14 +170,17 @@ class Annotations extends Component{
                   `${this.state.selectedImageUrl} 861w`,
                   `${this.state.selectedImageUrl} 955w`
               ].join(', '),
-              sizes: '(max-width: 480px) 30vw, 80vw'
+              sizes: '(min-width: 480px) 30vw, 80vw'
           },
           largeImage: {
               alt: '',
               src: this.state.selectedImageUrl,
               width: 1200,
-              height: 1800
-          }
+              height: 1200
+          },
+          isHintEnabled: true,
+          shouldHideHintAfterFirstActivation: false,
+          enlargedImagePosition:"over"
       }} />
           {/* <img width="100%" src={this.state.selectedImageUrl} />           */}
         </div>
