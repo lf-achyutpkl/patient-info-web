@@ -113,4 +113,8 @@
   border: none;
 }
 
+.image-preview{
+  max-height:400px !important;
+}
+
 

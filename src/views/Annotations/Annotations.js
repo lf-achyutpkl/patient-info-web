@@ -73,6 +73,11 @@ class Annotations extends Component{
       value: 'id',
     };
 
+    const customContentStyle = {
+      width: '90%',
+      maxWidth: 'none'      
+    };
+
     return(
       <div>
         <DropDownMenu value={this.state.selectedBatchId} onChange={this._selectBatch}>
@@ -149,10 +154,12 @@ class Annotations extends Component{
           modal={false}
           open={this.state.open}
           onRequestClose={this._handleClose}
+          contentStyle={customContentStyle}
+          bodyClassName="image-preview"
         >
-        <div style={{overflow:"scroll",maxHeight:"334px"}}>
+        <div style={{overflow:"scroll",maxHeight:"400px"}}>
         <div >
-          <ReactImageZoom {...{width: 400, height: 280, zoomWidth: 500, img: this.state.selectedImageUrl}} />
+          <ReactImageZoom {...{width: 500, height: 350, zoomWidth:400, img: this.state.selectedImageUrl}} />
           {/* <img width="100%" src={this.state.selectedImageUrl} />           */}
         </div>
         <div className="add-tag-dialog">
