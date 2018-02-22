@@ -1,6 +1,8 @@
 import Shape from './Shape';
 import { fabric } from 'fabric';
 
+const KEYCODE_ESC = 27;
+
 export default class Polygon extends Shape {
   constructor(props) {
     super(props);
@@ -13,9 +15,28 @@ export default class Polygon extends Shape {
     this.canvas;
     this.pointArray = new Array();
     this.line;
+
+    this.addEscapeKeyListenerForPolygon = this.addEscapeKeyListenerForPolygon.bind(this);
+    this.handleEscKeyForPolygon = this.handleEscKeyForPolygon.bind(this);
+    this.removeEscapeKeyListenerForPolygon = this.removeEscapeKeyListenerForPolygon.bind(this);
+  }
+
+  draw(){
+    super.draw();
+    this.drawPolygon();
+    this.addEscapeKeyListenerForPolygon();
+  }
+
+  addEscapeKeyListenerForPolygon(){
+    document.addEventListener('keydown', this.handleEscKeyForPolygon, false);
+  }
+
+  removeEscapeKeyListenerForPolygon(){
+    document.removeEventListener('keydown', this.handleEscKeyForPolygon, false);
   }
 
   mousedown(options) {
+    console.log('asdfasdf')
     if (options.target && options.target.id == this.pointArray[0].id) {
       this.generatePolygon(this.pointArray);
     }
@@ -148,6 +169,8 @@ export default class Polygon extends Shape {
   }
 
   generatePolygon(pointArray) {
+    this.removeEscapeKeyListenerForPolygon();
+
     var points = new Array();
     pointArray.forEach((point, index) => {
       points.push({
@@ -170,12 +193,7 @@ export default class Polygon extends Shape {
     });
     this.canvas.add(polygon);
 
-    this.activeLine = null;
-    this.activeShape = null;
-    this.polygonMode = false;
-    this.canvas.selection = true;
-
-    this.isListening = false;
+    this.cleanPointsAndLines();
 
     if (this.afterDraw)
       this.afterDraw(
@@ -190,5 +208,29 @@ export default class Polygon extends Shape {
           polygon.set('itemId', id);
         },
       );
+  }
+
+  cleanPointsAndLines(){
+    this.activeLine = null;
+    this.activeShape = null;
+    this.polygonMode = false;
+    this.canvas.selection = true;
+
+    this.isListening = false;
+  }
+
+  handleEscKeyForPolygon(e) {
+    if(e.keyCode != KEYCODE_ESC) return;
+    this.pointArray.forEach(point => {
+      this.canvas.remove(point)
+    });
+
+    this.lineArray.forEach((line, index) => {
+      this.canvas.remove(line);
+    });
+    this.canvas.remove(this.activeShape).remove(this.activeLine);
+
+    this.cleanPointsAndLines();
+    this.removeEscapeKeyListenerForPolygon();
   }
 }

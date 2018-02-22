@@ -6,6 +6,8 @@ import Polygon from '../utils/Polygon';
 
 import { fabric } from 'fabric';
 
+const KEYCODE_ESC = 27;
+
 export default class ImageAnnotationEdit extends React.Component {
   constructor(props) {
     super(props);
@@ -325,7 +327,10 @@ export default class ImageAnnotationEdit extends React.Component {
     });
   }
 
-  handleEscKey(){
+  handleEscKey(e){
+
+    if(e.keyCode != KEYCODE_ESC) return;
+
     let itemId = this.selectedItemId;
     let item = this.data.items[itemId];
     if(item != null && !item.caption){ // newly created item will not have caption key
@@ -422,9 +427,9 @@ export default class ImageAnnotationEdit extends React.Component {
       }
 
       if(shape){
-      shape.set('itemId', itemId);
-      this.canvas.add(shape);
-      lastId = lastId < itemId ? itemId : lastId;
+        shape.set('itemId', itemId);
+        this.canvas.add(shape);
+        lastId = lastId < itemId ? itemId : lastId;
       }
     });
 
