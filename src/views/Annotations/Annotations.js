@@ -18,6 +18,8 @@ import FlatButton from 'material-ui/FlatButton';
 import {baseUrl,uri,} from '../../config/uri';
 import {localStorageConstants} from '../../config/localStorageConstants';
 import {get,post,put} from '../../utils/httpUtils';
+import AutoComplete from 'material-ui/AutoComplete';
+import ReactImageMagnify from 'react-image-magnify';
 
 class Annotations extends Component{
 
@@ -41,7 +43,8 @@ class Annotations extends Component{
         pageCount: 0
       },
       annotations: [],
-      selectedIndexes: []
+      selectedIndexes: [],
+      selectedTag:{},
     }
   }
 
@@ -64,6 +67,16 @@ class Annotations extends Component{
         onClick={this._handleClose}
       />
     ];
+
+    const dataSourceConfig = {
+      text: 'tagName',
+      value: 'id',
+    };
+
+    const customContentStyle = {
+      width: '90%',
+      maxWidth: 'none'      
+    };
 
     return(
       <div>
@@ -126,8 +139,8 @@ class Annotations extends Component{
                     <TableRowColumn>{annotation.tags.map((tag)=>{return tag.tagName}).join(',')}</TableRowColumn>
                     {/* <TableRowColumn>{annotation.remarks}</TableRowColumn> */}
                     <TableRowColumn>
-                      <a href="#" style={{marginRight:"10px"}} onClick={() => this._updateAnnotation(annotation)}>{annotation.isReject==false?'Reject' : 'Accept'}</a>
-                      <a href="#" onClick={() => this._previewImage(annotation.imageName,annotation.patient.firstName,annotation.patient.lastName)}>Preview</a>
+                      <a href="#" style={{marginRight:"10px"}} onClick={() => this._updateAnnotation(annotation,true)}>{annotation.isReject==false?'Reject' : 'Accept'}</a>
+                      <a href="#" onClick={() => this._previewImage(annotation)}>Preview</a>
                     </TableRowColumn>
                   </TableRow>
                 )
@@ -141,10 +154,56 @@ class Annotations extends Component{
           modal={false}
           open={this.state.open}
           onRequestClose={this._handleClose}
+          contentStyle={customContentStyle}
+          bodyClassName="image-preview"
         >
         <div style={{overflow:"scroll",maxHeight:"400px"}}>
-          <img width="100%" src={this.state.selectedImageUrl} />
+        <div style={{width:"60%",display:"inline-block"}}>
+        <ReactImageMagnify {...{
+          smallImage: {
+              alt: this.state.selectedPatientName,
+              isFluidWidth: true,
+              src: this.state.selectedImageUrl,
+              srcSet: [
+                  `${this.state.selectedImageUrl} 687w`,
+                  `${this.state.selectedImageUrl} 770w`,
+                  `${this.state.selectedImageUrl} 861w`,
+                  `${this.state.selectedImageUrl} 955w`
+              ].join(', '),
+              sizes: '(min-width: 480px) 30vw, 80vw'
+          },
+          largeImage: {
+              alt: '',
+              src: this.state.selectedImageUrl,
+              width: 1200,
+              height: 1200
+          },
+          isHintEnabled: true,
+          shouldHideHintAfterFirstActivation: false,
+          enlargedImagePosition:"over"
+      }} />
+          {/* <img width="100%" src={this.state.selectedImageUrl} />           */}
         </div>
+        <div className="add-tag-dialog" style={{width:"40%",display:"inline-block",paddingLeft:"20px",verticalAlign:"top"}}>
+            <AutoComplete
+              floatingLabelText="Search Tags"
+              filter={AutoComplete.noFilter}
+              openOnFocus={false}
+              dataSource={this.state.tags}
+              filter={AutoComplete.caseInsensitiveFilter}
+              dataSourceConfig={dataSourceConfig}
+              onUpdateInput={this._selectTag}
+            />
+            <FlatButton
+              label="Add Tag"
+              primary={true}
+              keyboardFocused={true}
+              onClick={this._addTagToAnnotation}
+            />
+
+        </div>
+        </div>
+       
         </Dialog>
 
         {
@@ -225,41 +284,71 @@ class Annotations extends Component{
         });
   }
 
-  _getLoggedUser(){
-    let user=localStorage.getItem(localStorageConstants.LOGGED_USER);
-    return JSON.parse(user);
+  _selectTag=(tagName)=>{
+    let tag=this.state.tags.find(t=>{return t.tagName.trim()==tagName.trim()});
+    if(!tag){
+      tag={id:"0",tagName:tagName.trim()};
+    }
+    this.setState({selectedTag:tag});
   }
 
-  _fetchAllTags = () => {   
-    let url = uri.tags;
-    get(url)
-      .then(response =>{
-        this.setState({ tags: response.data });
-        });
+  _addTagToAnnotation=()=>{
+    if(this.state.selectedTag && this.state.selectedTag.tagName){
+    let annotation=this.state.selectedAnnotation;
+    annotation.tags.push(this.state.selectedTag);
+    this._updateAnnotation(annotation,false);
+    if(this.state.selectedTag.id==0){
+      this.state.selectedTag={};
+      this._fetchAllTags();
+    }
+    }
+    else{
+      alert("Tag cannot be empty.");
+    }
   }
 
-  _getLoggedUser(){
-    let user=localStorage.getItem(localStorageConstants.LOGGED_USER);
-    return JSON.parse(user);
-  }
+  _updateAnnotation=(annotation,fromReject=false)=>{ 
+    if(fromReject){
+      annotation.isReject=!annotation.isReject;
+    }   
+    put(`${uri.annotation}/${annotation.id}`,annotation).then(response=>{
+      let foundIndex = this.state.annotations.findIndex(x => x.id == annotation.id);
+      let newAnnotations=this.state.annotations;
+      newAnnotations[foundIndex] = response.data;
 
-  _updateAnnotation=(annotation)=>{
-    annotation.isReject=!annotation.isReject;
-    put(`${uri.annotation}/${annotation.id}`, annotation).then(response=>{
-      if(response.data){
-        let newAnnotations=this.state.annotations.filter(res=>{
-          return res.id != annotation.id;
-        });
-        this.setState({
-          annotations:newAnnotations 
-        }) 
+      if(fromReject){
+      newAnnotations=this.state.annotations.filter(res=>{
+                return res.id != annotation.id;
+              });
       }
+     
+      this.setState({annotations:newAnnotations,open: false});
     });
+    
   }
 
-  _previewImage=(imageName,firstName,lastName)=>{
-    let imageUrl=baseUrl + imageName;
-    this.setState({open: true,selectedImageUrl:imageUrl,selectedPatientName:firstName+' '+lastName});
+  _getLoggedUser(){
+    let user=localStorage.getItem(localStorageConstants.LOGGED_USER);
+    return JSON.parse(user);
+  }
+
+  // _updateAnnotation=(annotation)=>{
+  //   annotation.isReject=!annotation.isReject;
+  //   put(`${uri.annotation}/${annotation.id}`, annotation).then(response=>{
+  //     if(response.data){
+  //       let newAnnotations=this.state.annotations.filter(res=>{
+  //         return res.id != annotation.id;
+  //       });
+  //       this.setState({
+  //         annotations:newAnnotations 
+  //       }) 
+  //     }
+  //   });
+  // }
+
+  _previewImage=(annotation)=>{
+    let imageUrl=baseUrl + annotation.imageName;
+    this.setState({open: true,selectedImageUrl:imageUrl,selectedPatientName:annotation.patient.firstName+' '+annotation.patient.lastName,selectedAnnotation:annotation});
     
   }
 

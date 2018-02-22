@@ -23,16 +23,16 @@ const SELECTED_INDEX = 'selectedIndex';
 const IMAGE_WIDTH = 900;
 const IMAGE_HEIGHT = 600;
 const OPTIONS = [
-  {label: 'Microaneurysm', color: 'green'},
-  {label: 'Haemorrhages', color: 'blue'},
-  {label: 'Venous bedding', color: 'yellow'},
-  {label: 'Intraretinal microvascular abnormalities(IRMA)', color: 'cyan'},
-  {label: 'New vessels at the disc (NVD)', color: 'pink'},
-  {label: 'New vessels elsewhere (NVE)', color: 'maroon'},
-  {label: 'Vitreous haemorrhage', color: 'Aqua'},
-  {label: 'Pre retinal haemorrrhage', color: 'Teal'},
-  {label: 'Hard exudates', color: 'DARKSALMON'},
-  {label: 'Retinal thickening', color: 'PURPLE'}
+  // {label: 'Microaneurysm', color: 'green'},
+  // {label: 'Haemorrhages', color: 'blue'},
+  // {label: 'Venous bedding', color: 'yellow'},
+  // {label: 'Intraretinal microvascular abnormalities(IRMA)', color: 'cyan'},
+  // {label: 'New vessels at the disc (NVD)', color: 'pink'},
+  // {label: 'New vessels elsewhere (NVE)', color: 'maroon'},
+  // {label: 'Vitreous haemorrhage', color: 'Aqua'},
+  // {label: 'Pre retinal haemorrrhage', color: 'Teal'},
+  // {label: 'Hard exudates', color: 'DARKSALMON'},
+  // {label: 'Retinal thickening', color: 'PURPLE'}
 ];
 
 class AnnotateEditor extends Component {
@@ -63,7 +63,8 @@ class AnnotateEditor extends Component {
           diagnosisList:[],
           diagnosisDropdownTree:[],
           hasChanges:false,
-          goToIndex:0
+          goToIndex:0,
+          options:[]
         }
     }
 
@@ -87,6 +88,7 @@ class AnnotateEditor extends Component {
     componentDidMount(){
       this._fetchData();
       this._fetchAllTags();
+      this._fetchOptions();
     }
 
     /**
@@ -157,7 +159,7 @@ class AnnotateEditor extends Component {
             width={IMAGE_WIDTH}
             update={this.update}
             data={this.state.data}
-            options={OPTIONS}
+            options={this.state.options}
             add={this._add}
             remove={this._remove}
           />
@@ -235,8 +237,6 @@ class AnnotateEditor extends Component {
     }
 
   update = (data) => {
-    console.log("saving data",data);
-    console.log("this.state.diagnosisDropdownTree",this.state.diagnosisDropdownTree);
     this.setState({hasChanges:false});
     let oldCanvas = document.getElementById('canvas');
     oldCanvas = null;
@@ -360,6 +360,7 @@ class AnnotateEditor extends Component {
       index=this.state.goToIndex;
       this.setState({confirmation_open: false,hasChanges: false});
     }
+    localStorage.removeItem('viewportTransform');
     let data = {items: {}};
     localStorage.setItem(SELECTED_INDEX,JSON.stringify(index));
     this.setState({currentIndex:index},()=>{  
@@ -386,6 +387,7 @@ class AnnotateEditor extends Component {
     get(url)
       .then(response =>{
         this.setState({ annotations: response.data, isLoading: false,currentIndex:0 },()=>{
+          localStorage.removeItem('viewportTransform');
           if(this.state.annotations[this.state.currentIndex].annotationInfo != null && this.state.annotations[this.state.currentIndex].annotationInfo != ""){
             data = JSON.parse(this.state.annotations[this.state.currentIndex].annotationInfo);
           }
@@ -401,6 +403,14 @@ class AnnotateEditor extends Component {
     get(url)
       .then(response =>{
         this.setState({ tags: response.data });
+        });
+  }
+
+  _fetchOptions=()=>{
+    let url = uri.annotationLabels+'/image_annotation';;
+    get(url)
+      .then(response =>{
+        this.setState({ options: response.data });
         });
   }
 
