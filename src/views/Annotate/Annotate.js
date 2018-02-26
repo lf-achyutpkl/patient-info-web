@@ -51,7 +51,7 @@ class AnnotateEditor extends Component {
           isLoading: true,
           annotations: [],
           tags:[],
-          currentIndex: localStorage.getItem(SELECTED_INDEX)?JSON.parse(localStorage.getItem(SELECTED_INDEX)):0,
+          currentIndex:0,
           imageUrl: "",
           isReject:false,
           pagination: {
@@ -151,6 +151,13 @@ class AnnotateEditor extends Component {
             this.state.annotations.length > 1 && this.state.currentIndex < this.state.annotations.length - 1 &&
             <button type="button" className="btn btn-primary" style={{marginBottom:'15px'}} onClick={this._onNext}>Next Image</button>
           }
+
+          {            
+            this.state.annotations.length > 0  &&
+            <button type="button" className="btn btn-primary" style={{marginBottom:'15px',marginLeft:"10px"}} onClick={()=>this._updateAnnotation(this.state.annotations[this.state.currentIndex],true)}>Reject</button>
+          }
+
+          <label style={{marginLeft:"10px"}}>{ this.state.annotations[this.state.currentIndex].patient.imageName } {this.state.annotations[this.state.currentIndex].patient.lastName}</label>
           </div>
           <div style={{width:"82%",float:"left"}}>
           <ImageAnnotationEdit
@@ -252,13 +259,18 @@ class AnnotateEditor extends Component {
     return JSON.parse(user);
   }
 
-  _updateAnnotation(annotation){
+  _updateAnnotation(annotation,isReject=false){
+    if(isReject){
+      annotation.isReject=true;
+    }
     put(`${uri.annotation}/${annotation.id}`,annotation).then(response=>{
       let foundIndex = this.state.annotations.findIndex(x => x.id == annotation.id);
       let newAnnotations=this.state.annotations;
-      newAnnotations[foundIndex] = response.data;
-      
+      newAnnotations[foundIndex] = response.data;      
       this.setState({annotations:newAnnotations,open: false});
+      if(isReject){
+        this.setState({currentIndex:this.state.currentIndex==this.state.annotations.length-1?0:this.state.currentIndex+1});
+      }
     });
     
   }

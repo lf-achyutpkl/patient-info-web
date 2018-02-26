@@ -45,6 +45,7 @@ class Annotations extends Component{
       annotations: [],
       selectedIndexes: [],
       selectedTag:{},
+      currentIndex:0
     }
   }
 
@@ -65,7 +66,13 @@ class Annotations extends Component{
         label="Cancel"
         primary={true}
         onClick={this._handleClose}
-      />
+      />,
+      <FlatButton
+      label="Reject"
+      primary={true}
+      keyboardFocused={true}
+      onClick={this._rejectImage}
+    />
     ];
 
     const dataSourceConfig = {
@@ -126,7 +133,7 @@ class Annotations extends Component{
           <TableBody showRowHover  displayRowCheckbox={false}>
             {
               this.state.annotations &&
-                this.state.annotations.map(annotation =>
+                this.state.annotations.map((annotation,index) =>
                   <TableRow key={annotation.id}>
                     {/* <TableRowColumn>
                     <Checkbox
@@ -140,7 +147,7 @@ class Annotations extends Component{
                     {/* <TableRowColumn>{annotation.remarks}</TableRowColumn> */}
                     <TableRowColumn>
                       <a href="#" style={{marginRight:"10px"}} onClick={() => this._updateAnnotation(annotation,true)}>{annotation.isReject==false?'Reject' : 'Accept'}</a>
-                      <a href="#" onClick={() => this._previewImage(annotation)}>Preview</a>
+                      <a href="#" onClick={() => this._previewImage(index)}>Preview</a>
                     </TableRowColumn>
                   </TableRow>
                 )
@@ -200,8 +207,18 @@ class Annotations extends Component{
               keyboardFocused={true}
               onClick={this._addTagToAnnotation}
             />
+            <div>
+            {            
+              this.state.annotations.length > 1 && this.state.currentIndex > 0 &&
+              <button type="button" className="btn btn-primary"  style={{marginRight:'10px',marginBottom:'15px'}} onClick={this._onPrevious}>Previous Image</button>
+            }
 
-        </div>
+            {            
+              this.state.annotations.length > 1 && this.state.currentIndex < this.state.annotations.length - 1 &&
+              <button type="button" className="btn btn-primary" style={{marginBottom:'15px'}} onClick={this._onNext}>Next Image</button>
+            }
+            </div>
+           </div>
         </div>
        
         </Dialog>
@@ -346,10 +363,12 @@ class Annotations extends Component{
   //   });
   // }
 
-  _previewImage=(annotation)=>{
-    let imageUrl=baseUrl + annotation.imageName;
-    this.setState({open: true,selectedImageUrl:imageUrl,selectedPatientName:annotation.patient.firstName+' '+annotation.patient.lastName,selectedAnnotation:annotation});
-    
+  _previewImage=(index)=>{
+    this.setState({currentIndex:index},()=>{
+      let annotation=this.state.annotations[index];
+      let imageUrl=baseUrl + annotation.imageName;
+      this.setState({open: true,selectedImageUrl:imageUrl,selectedPatientName:annotation.patient.firstName+' '+annotation.patient.lastName,selectedAnnotation:annotation});
+    }) 
   }
 
   _handleClose = () => {
@@ -359,7 +378,7 @@ class Annotations extends Component{
   _onClickPagination = (gotoPage) => {
     let pagination = {...this.state.pagination, page: gotoPage};
     this.setState({pagination}, () => {
-      this._fetchData();
+      this._fetchImagesByBranch();
     })
   }
 
@@ -385,6 +404,19 @@ class Annotations extends Component{
       selectedIndexes = this.state.selectedIndexes.concat([annotationId])
     }
     this.setState({selectedIndexes});
+  }
+
+  _onNext = () => {
+    this._previewImage(this.state.currentIndex+1);
+  }
+
+  _onPrevious = () => {
+    this._previewImage(this.state.currentIndex-1);
+  }
+
+  _rejectImage = () =>{
+    this._updateAnnotation(this.state.annotations[this.state.currentIndex],true);
+    this.setState({currentIndex:this.state.currentIndex==this.state.annotations.length-1?0:this.state.currentIndex+1});
   }
 
 }
