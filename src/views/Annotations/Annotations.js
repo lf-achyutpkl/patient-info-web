@@ -66,13 +66,7 @@ class Annotations extends Component{
         label="Cancel"
         primary={true}
         onClick={this._handleClose}
-      />,
-      <FlatButton
-      label="Reject"
-      primary={true}
-      keyboardFocused={true}
-      onClick={this._rejectImage}
-    />
+      />
     ];
 
     const dataSourceConfig = {
@@ -210,13 +204,19 @@ class Annotations extends Component{
             <div>
             {            
               this.state.annotations.length > 1 && this.state.currentIndex > 0 &&
-              <button type="button" className="btn btn-primary"  style={{marginRight:'10px',marginBottom:'15px'}} onClick={this._onPrevious}>Previous Image</button>
+              <button type="button" className="btn btn-primary"  style={{marginRight:'10px',marginTop:'15px'}} onClick={this._onPrevious}>Previous Image</button>
             }
 
             {            
               this.state.annotations.length > 1 && this.state.currentIndex < this.state.annotations.length - 1 &&
-              <button type="button" className="btn btn-primary" style={{marginBottom:'15px'}} onClick={this._onNext}>Next Image</button>
+              <button type="button" className="btn btn-primary" style={{marginTop:'15px'}} onClick={this._onNext}>Next Image</button>
             }
+
+            {            
+              this.state.annotations.length > 0 &&
+              <button type="button" className="btn btn-danger" style={{marginLeft:"10px",marginTop:'15px'}} onClick={this._rejectImage}>Reject </button>   
+            }        
+           
             </div>
            </div>
         </div>
@@ -339,7 +339,7 @@ class Annotations extends Component{
               });
       }
      
-      this.setState({annotations:newAnnotations,open: false});
+      this.setState({annotations:newAnnotations,open: fromReject?true:false});
     });
     
   }
@@ -416,7 +416,7 @@ class Annotations extends Component{
 
   _rejectImage = () =>{
     this._updateAnnotation(this.state.annotations[this.state.currentIndex],true);
-    this.setState({currentIndex:this.state.currentIndex==this.state.annotations.length-1?0:this.state.currentIndex+1});
+    this._previewImage(this.state.currentIndex==this.state.annotations.length-1?0:this.state.currentIndex+1);
   }
 
 }
