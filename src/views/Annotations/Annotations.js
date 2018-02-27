@@ -20,6 +20,7 @@ import {localStorageConstants} from '../../config/localStorageConstants';
 import {get,post,put} from '../../utils/httpUtils';
 import AutoComplete from 'material-ui/AutoComplete';
 import ReactImageMagnify from 'react-image-magnify';
+import Chip from 'material-ui/Chip';
 
 class Annotations extends Component{
 
@@ -201,6 +202,18 @@ class Annotations extends Component{
               keyboardFocused={true}
               onClick={this._addTagToAnnotation}
             />
+
+            <div>
+            <label>Tags : </label>
+            {this.state.annotations[this.state.currentIndex] && this.state.annotations[this.state.currentIndex].tags.map((tag, index)=>{
+              return(
+              <Chip style={{display:"inline-block",marginLeft:"5px"}} key={index}>
+              {tag.tagName}
+              </Chip>
+              )
+            })
+            }
+            </div>
             <div>
             {            
               this.state.annotations.length > 1 && this.state.currentIndex > 0 &&
@@ -214,7 +227,7 @@ class Annotations extends Component{
 
             {            
               this.state.annotations.length > 0 &&
-              <button type="button" className="btn btn-danger" style={{marginLeft:"10px",marginTop:'15px'}} onClick={this._rejectImage}>Reject </button>   
+              <button type="button" className="btn btn-danger" style={{marginLeft:"10px",marginTop:'15px'}} onClick={this._rejectImage}>{this.state.annotations[this.state.currentIndex].isReject?"Accept":"Reject"} </button>   
             }        
            
             </div>

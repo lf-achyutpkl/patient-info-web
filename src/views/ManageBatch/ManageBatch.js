@@ -34,7 +34,8 @@ class ManageBatch extends Component{
       },
       batchList: [],
       selectedBatch:{id:0},
-      userList:[]
+      userList:[],
+      defaultBatchFilter:0
     }
   }
 
@@ -49,6 +50,13 @@ class ManageBatch extends Component{
 
     return(
       <div>    
+
+         <DropDownMenu value={this.state.defaultBatchFilter} onChange={this._handleBatchFilterChange}>
+          <MenuItem value={0} primaryText="Display All Images" />
+          <MenuItem value={1} primaryText="Display Assigned Batches" />
+          <MenuItem value={2} primaryText="Display Unassigned Batches" />
+         </DropDownMenu> 
+
         <Table>
           <TableHeader displaySelectAll={false}  adjustForCheckbox={false}>
             <TableRow>
@@ -134,7 +142,7 @@ class ManageBatch extends Component{
 
   _constructQueryParam = () => {  
     let { page, pageSize } = this.state.pagination;
-    return `?page=${page}&pageSize=${pageSize}`;
+    return `?page=${page}&pageSize=${pageSize}&filterId=${this.state.defaultBatchFilter}`;
   }
 
   _fetchUsersList=()=>{
@@ -197,6 +205,12 @@ class ManageBatch extends Component{
 
   _selectUser = (event, index, value) => {
     this.setState({selectedUserId:value});
+  }
+
+  _handleBatchFilterChange = (event, index, value) => {
+    this.setState({defaultBatchFilter:value}, () => {
+      this._fetchBatchList();
+     });
   }
 
 
