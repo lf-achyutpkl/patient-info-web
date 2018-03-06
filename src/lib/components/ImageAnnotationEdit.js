@@ -7,6 +7,7 @@ import Polygon from '../utils/Polygon';
 import { fabric } from 'fabric';
 
 const KEYCODE_ESC = 27;
+const KEYCODE_CTRL = 17;
 
 export default class ImageAnnotationEdit extends React.Component {
   constructor(props) {
@@ -25,6 +26,7 @@ export default class ImageAnnotationEdit extends React.Component {
         text: '',
         searchText: '',
       },
+      hasChanged:false
     };
 
     this.selectedItem = null;
@@ -243,8 +245,12 @@ export default class ImageAnnotationEdit extends React.Component {
   }
 
   mouseOut(e) {
-    if (!this.elem.contains(e.relatedTarget)) {
+    if (!this.elem.contains(e.relatedTarget)) { 
       this.hideAnnModal();
+      if(this.state.hasChanged==true){
+        this.props.update(this.data);
+        this.setState({hasChanged:false});
+      }
     }
   }
 
@@ -261,6 +267,7 @@ export default class ImageAnnotationEdit extends React.Component {
   }
 
   showAnnModal(itemId) {
+    
     let selectedItemId = itemId;
     this.selectedItemId = selectedItemId;
 
@@ -269,13 +276,12 @@ export default class ImageAnnotationEdit extends React.Component {
     let { top, left, height, caption } = item;
 
     let annModal = { ...this.state.annModal };
-    annModal.position.top = top + height;
+    annModal.position.top = top - 150;
     annModal.position.left = left;
     annModal.text = caption;
     annModal.display = 'block';
     annModal.isEdit = !caption;
     annModal.searchText = '';
-
     this.setState({ annModal });
   }
 
@@ -308,13 +314,14 @@ export default class ImageAnnotationEdit extends React.Component {
       if(this.selectedItem != null){
         this.selectedItem['stroke'] = option.color
       }
-
+      this.setState({hasChanged:true});
       this.canvas.renderAll();
       this.hideAnnModal();
     };
   }
 
   deleteAnn() {
+    this.setState({hasChanged:true});
     let itemId = this.selectedItemId;
     let item = this.data.items[itemId];
     if (!item) return;
@@ -330,14 +337,18 @@ export default class ImageAnnotationEdit extends React.Component {
 
   handleEscKey(e){
 
-    if(e.keyCode != KEYCODE_ESC) return;
+    if(e.keyCode == KEYCODE_ESC) {
 
-    let itemId = this.selectedItemId;
-    let item = this.data.items[itemId];
-    if(item != null && !item.caption){ // newly created item will not have caption key
-      this.deleteAnn();
-    } else {
-      this.hideAnnModal();
+        let itemId = this.selectedItemId;
+        let item = this.data.items[itemId];
+        if(item != null && !item.caption){ // newly created item will not have caption key
+          this.deleteAnn();
+        } else {
+          this.hideAnnModal();
+        }
+    }
+    else if(e.keyCode == KEYCODE_CTRL) {
+      this.enableDrawRect();
     }
   }
 
@@ -349,6 +360,7 @@ export default class ImageAnnotationEdit extends React.Component {
   }
 
   addItem(item) {
+    this.setState({hasChanged:true});
     localStorage.setItem('viewportTransform', JSON.stringify(this.canvas.viewportTransform));
     this.props.add(item, itemId => {
       this.showAnnModal(itemId);
@@ -370,6 +382,7 @@ export default class ImageAnnotationEdit extends React.Component {
     item.scaleY = target.scaleY;
 
     this.data.items[itemId] = item;
+    this.setState({hasChanged:true});
   }
 
   saveState() {

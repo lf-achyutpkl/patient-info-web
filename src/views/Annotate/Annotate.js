@@ -9,6 +9,7 @@ import AutoComplete from 'material-ui/AutoComplete';
 import Chip from 'material-ui/Chip';
 import RaisedButton from 'material-ui/RaisedButton';
 import DropdownTreeSelect from 'react-dropdown-tree-select'
+import TextField from 'material-ui/TextField';
 import {
   Table,
   TableRow,
@@ -50,6 +51,7 @@ class AnnotateEditor extends Component {
           selectedTag:{},
           isLoading: true,
           annotations: [],
+          filteredAnnotation:[],
           tags:[],
           currentIndex:0,
           imageUrl: "",
@@ -86,6 +88,8 @@ class AnnotateEditor extends Component {
     // }
 
     componentDidMount(){
+      let index=localStorage.getItem("currentIndex_"+this.props.location.query.batchId)? JSON.parse(localStorage.getItem("currentIndex_"+this.props.location.query.batchId)):0
+      this.setState({currentIndex:index});
       this._fetchData();
       this._fetchAllTags();
       this._fetchOptions();
@@ -141,7 +145,9 @@ class AnnotateEditor extends Component {
 
       return (
         <div id="asdf">
-         <div>
+        
+          <div style={{width:"82%",float:"left"}}>
+          <div>
           {            
             this.state.annotations.length > 1 && this.state.currentIndex > 0 &&
             <button type="button" className="btn btn-primary"  style={{marginRight:'10px',marginBottom:'15px'}} onClick={this._onPrevious}>Previous Image</button>
@@ -154,12 +160,11 @@ class AnnotateEditor extends Component {
 
           {            
             this.state.annotations.length > 0  &&
-            <button type="button" className="btn btn-primary" style={{marginBottom:'15px',marginLeft:"10px"}} onClick={()=>this._updateAnnotation(this.state.annotations[this.state.currentIndex],true)}>Reject</button>
+            <button type="button" className="btn btn-danger" style={{marginBottom:'15px',marginRight:"35px",float:"right"}} onClick={()=>this._updateAnnotation(this.state.annotations[this.state.currentIndex],true)}>Reject</button>
           }
 
           <label style={{marginLeft:"10px"}}>{ this.state.annotations[this.state.currentIndex].patient.imageName } {this.state.annotations[this.state.currentIndex].patient.lastName}</label>
           </div>
-          <div style={{width:"82%",float:"left"}}>
           <ImageAnnotationEdit
             imageURL={ baseUrl + this.state.annotations[this.state.currentIndex].imageName}
             height={IMAGE_HEIGHT}
@@ -185,7 +190,13 @@ class AnnotateEditor extends Component {
             }
             <RaisedButton label="Add Tags" primary={true} onClick={() => this._addTags(this.state.annotations[this.state.currentIndex])} style={{display:"block",marginTop:"10px"}}/>
           </div>
+          <TextField
+            style={{maxWidth:"200px"}}
+            hintText="Filter Patient"
+            onChange={(e) => this._filterPatient(e)}
+          />
           <div  style={{maxHeight:"440px",overflow:"auto",marginTop:"10px"}}>
+          
           <Table className="tags-list">
           <TableHeader displaySelectAll={false} adjustForCheckbox={false}>
             <TableRow>
@@ -194,8 +205,8 @@ class AnnotateEditor extends Component {
           </TableHeader>
           <TableBody showRowHover displayRowCheckbox={false}  >
             {
-              this.state.annotations &&
-                this.state.annotations.map((annotation,index) =>
+              this.state.filteredAnnotation &&
+                this.state.filteredAnnotation.map((annotation,index) =>
                   <TableRow key={annotation.id} style={{background:this.state.currentIndex==index?"rgba(224, 224, 223, 1)":""}}>
                     <TableRowColumn><a href="#" onClick={() => this._goToIndex(index)}>{`${annotation.patient.firstName} ${annotation.patient.lastName}`}</a></TableRowColumn>
                   </TableRow>
@@ -338,7 +349,7 @@ class AnnotateEditor extends Component {
   _add = (item, cb) => {
     item.id = new Date().getTime();
     let data = this.state.data;
-    data.items[item.id] = item;
+    data.items[item.id] = item;    
     this.setState({
         data:data,hasChanges:true
     }, () => {
@@ -374,7 +385,7 @@ class AnnotateEditor extends Component {
     }
     localStorage.removeItem('viewportTransform');
     let data = {items: {}};
-    localStorage.setItem(SELECTED_INDEX,JSON.stringify(index));
+    localStorage.setItem("currentIndex_"+this.props.location.query.batchId,JSON.stringify(index));
     this.setState({currentIndex:index},()=>{  
       if(this.state.annotations[this.state.currentIndex].annotationInfo != null && this.state.annotations[this.state.currentIndex].annotationInfo != ""){
         data = JSON.parse(this.state.annotations[this.state.currentIndex].annotationInfo); 
@@ -398,7 +409,7 @@ class AnnotateEditor extends Component {
     let data = {items: {}};
     get(url)
       .then(response =>{
-        this.setState({ annotations: response.data, isLoading: false,currentIndex:0 },()=>{
+        this.setState({ annotations: response.data,filteredAnnotation:response.data, isLoading: false},()=>{
           localStorage.removeItem('viewportTransform');
           if(this.state.annotations[this.state.currentIndex].annotationInfo != null && this.state.annotations[this.state.currentIndex].annotationInfo != ""){
             data = JSON.parse(this.state.annotations[this.state.currentIndex].annotationInfo);
@@ -504,6 +515,17 @@ class AnnotateEditor extends Component {
         selectedCodes.push(currentNode.value);
       }
       this._resetDiagnosisList(selectedCodes);
+  }
+
+  _filterPatient=(e)=>{
+    let filteredDataList=[];
+    if(e && e.target.value){
+      filteredDataList =  this.state.annotations.filter(image => image.patient.firstName.toLowerCase().startsWith(e.target.value.toLowerCase())  );
+    }
+    else{
+      filteredDataList=this.state.annotations;
+    }
+    this.setState({filteredAnnotation: filteredDataList});
   }
 
 };
