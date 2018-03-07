@@ -196,9 +196,9 @@ class AnnotateEditor extends Component {
             hintText="Filter Patient"
             onChange={(e) => this._filterPatient(e)}
           />
-          <div  style={{maxHeight:"440px",overflow:"auto",marginTop:"10px"}}>
+          <div id="scrollable-container"  style={{maxHeight:"440px",overflow:"auto",marginTop:"10px"}}>
           
-          <Table className="tags-list">
+          <Table id="tags-list">
           <TableHeader displaySelectAll={false} adjustForCheckbox={false}>
             <TableRow>
               <TableHeaderColumn>Patient Name</TableHeaderColumn>
@@ -208,7 +208,7 @@ class AnnotateEditor extends Component {
             {
               this.state.filteredAnnotation &&
                 this.state.filteredAnnotation.map((annotation,index) =>
-                  <TableRow key={annotation.id} style={{background:this.state.currentIndex==index?"rgba(224, 224, 223, 1)":""}}>
+                  <TableRow key={annotation.id} id={this.state.currentIndex==index?"activeIndex":""} style={{background:this.state.currentIndex==index?"rgba(224, 224, 223, 1)":""}}>
                     <TableRowColumn><a href="#" onClick={() => this._goToIndex(index)}>{`${annotation.patient.firstName} ${annotation.patient.lastName}`}</a></TableRowColumn>
                   </TableRow>
                 )
@@ -258,7 +258,15 @@ class AnnotateEditor extends Component {
   update = (data) => {
     this.setState({hasChanges:false});
     let oldCanvas = document.getElementById('canvas');
-    oldCanvas = null;
+    oldCanvas = null;   
+
+    Object.keys(data.items).forEach(itemId => {
+      let item = data.items[itemId];      
+      if(item.type!="whole_image" && !item.caption){        
+        delete data.items[itemId];
+      }
+    });
+
     let annotation = {...this.state.annotations[this.state.currentIndex], annotationInfo: JSON.stringify(data)};
     // this.setState({annotation}, () => {
       this._updateAnnotation(annotation);
@@ -387,13 +395,14 @@ class AnnotateEditor extends Component {
     localStorage.removeItem('viewportTransform');
     let data = {items: {}};
     localStorage.setItem("currentIndex_"+this.props.location.query.batchId,JSON.stringify(index));
-    this.setState({currentIndex:index},()=>{  
+    this.setState({currentIndex:index},()=>{ 
+      this._prefetchImage(); 
       if(this.state.annotations[this.state.currentIndex].annotationInfo != null && this.state.annotations[this.state.currentIndex].annotationInfo != ""){
         data = JSON.parse(this.state.annotations[this.state.currentIndex].annotationInfo); 
       }
       this.setState({data},()=>{
         let selectedCodes=this._fetchSelectedCodeFromAnnotationInfo();
-        this._resetDiagnosisList(selectedCodes);
+        this._resetDiagnosisList(selectedCodes);        
       });
     });
   }
@@ -417,7 +426,8 @@ class AnnotateEditor extends Component {
             data = JSON.parse(this.state.annotations[this.state.currentIndex].annotationInfo);
           }
           this.setState({data:data},()=>{
-            this._fetchAllDiagnosis();
+            this._fetchAllDiagnosis();            
+            this._scrollToCurrentIndex();
           });
           });
         });
@@ -537,6 +547,11 @@ class AnnotateEditor extends Component {
           img.src = baseUrl + this.state.annotations[this.state.currentIndex + i].imageName; // Assigning the img src immediately requests the image
       }
     }
+  }
+
+  _scrollToCurrentIndex=()=>{
+    let topPos = document.getElementById('activeIndex').offsetTop;
+    document.getElementById('scrollable-container').scrollTop = topPos-10;
   }
 
 };

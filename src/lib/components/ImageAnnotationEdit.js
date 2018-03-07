@@ -276,8 +276,8 @@ export default class ImageAnnotationEdit extends React.Component {
     let { top, left, height, caption } = item;
 
     let annModal = { ...this.state.annModal };
-    annModal.position.top = top - 150;
-    annModal.position.left = left;
+    annModal.position.top = top - 10;
+    annModal.position.left = left + 50;
     annModal.text = caption;
     annModal.display = 'block';
     annModal.isEdit = !caption;
@@ -380,7 +380,6 @@ export default class ImageAnnotationEdit extends React.Component {
     item.angle = target.angle;
     item.scaleX = target.scaleX;
     item.scaleY = target.scaleY;
-
     this.data.items[itemId] = item;
     this.setState({hasChanged:true});
   }
@@ -479,7 +478,7 @@ export default class ImageAnnotationEdit extends React.Component {
           <button onClick={this.zoomIn}>Zoom In</button>
           <button onClick={this.zoomOut}>Zoom Out</button>
           <button onClick={this.resetZoom}>Reset Zoom</button>
-          <button onClick={this.saveState}>Save</button>
+          {/* <button onClick={this.saveState}>Save</button> */}
           {/* <button onClick={this.resetState}>Reset</button> */}
         </div>
         {/* <img
