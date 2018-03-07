@@ -66,7 +66,8 @@ class AnnotateEditor extends Component {
           diagnosisDropdownTree:[],
           hasChanges:false,
           goToIndex:0,
-          options:[]
+          options:[],
+          noToPrefetch:5
         }
     }
 
@@ -410,6 +411,7 @@ class AnnotateEditor extends Component {
     get(url)
       .then(response =>{
         this.setState({ annotations: response.data,filteredAnnotation:response.data, isLoading: false},()=>{
+          this._prefetchImage();
           localStorage.removeItem('viewportTransform');
           if(this.state.annotations[this.state.currentIndex].annotationInfo != null && this.state.annotations[this.state.currentIndex].annotationInfo != ""){
             data = JSON.parse(this.state.annotations[this.state.currentIndex].annotationInfo);
@@ -528,6 +530,17 @@ class AnnotateEditor extends Component {
     this.setState({filteredAnnotation: filteredDataList});
   }
 
+  _prefetchImage=()=>{
+    for(let i=0;i<this.state.noToPrefetch;i++){
+      if((this.state.currentIndex+i) < this.state.annotations.length){
+          const img = document.createElement('img');
+          img.src = baseUrl + this.state.annotations[this.state.currentIndex + i].imageName; // Assigning the img src immediately requests the image
+      }
+    }
+  }
+
 };
+
+
 
 export default AnnotateEditor;
