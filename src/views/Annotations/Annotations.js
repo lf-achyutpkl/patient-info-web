@@ -284,6 +284,11 @@ class Annotations extends Component{
     get(url)
     .then(response => {
         this.setState({currentUser: response.data},()=>{
+        if(response.data.roles.toLowerCase()=="super admin") 
+        {
+          this._getAllBranch();
+        } 
+
         if(this.state.currentUser.batches.length > 0){ 
             this.setState({selectedBatchId:parseInt(this.state.currentUser.batches[0].id) },()=>{
               this._fetchImagesByBranch();
@@ -430,6 +435,20 @@ class Annotations extends Component{
   _rejectImage = () =>{
     this._updateAnnotation(this.state.annotations[this.state.currentIndex],true);
     this._previewImage(this.state.currentIndex==this.state.annotations.length-1?0:this.state.currentIndex+1);
+  }
+
+  _getAllBranch=()=>{
+    let url = uri.batches + this._constructBatchQueryParam();
+    get(url)
+      .then(response =>{
+        let user=this.state.currentUser;
+        user.batches=response.data;
+          this.setState({ currentUser: user });
+        });
+  }
+
+  _constructBatchQueryParam = () => {  
+    return `?page=1&pageSize=1000&filterId=0`;
   }
 
 }

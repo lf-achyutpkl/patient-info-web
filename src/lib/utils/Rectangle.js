@@ -45,7 +45,6 @@ export default class Rectangle extends Shape {
     if (!w || !h) {
       return false;
     }
-    console.log("aaaaa");
 
     let square = this.canvas.getActiveObject();
     square.set("width", w).set("height", h);
