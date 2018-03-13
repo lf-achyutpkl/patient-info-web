@@ -284,7 +284,7 @@ class Annotations extends Component{
     get(url)
     .then(response => {
         this.setState({currentUser: response.data},()=>{
-        if(response.data.roles.toLowerCase()=="super admin") 
+        if(response.data.roles.toLowerCase()=="super admin" || response.data.roles.toLowerCase()=="superadmin") 
         {
           this._getAllBranch();
         } 
@@ -448,7 +448,7 @@ class Annotations extends Component{
   }
 
   _constructBatchQueryParam = () => {  
-    return `?page=1&pageSize=1000&filterId=0`;
+    return `?page=1&pageSize=1000&filterId=1`;
   }
 
 }

@@ -5,12 +5,13 @@ import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
 import AppBar from 'material-ui/AppBar';
 import RaisedButton from 'material-ui/RaisedButton';
 import TextField from 'material-ui/TextField';
-
-const USER_TOKEN = 'userToken';
+import {localStorageConstants} from '../../config/localStorageConstants';
 
 class Login extends Component {
 
     constructor(props){
+        
+        localStorage.removeItem(localStorageConstants.USER_TOKEN);
         super(props);
 
         this.state = {
@@ -18,10 +19,6 @@ class Login extends Component {
           password:''
         }
     }
-
-componentDidMount(){
-  localStorage.clear();
- }
 
   render(){
 
@@ -68,7 +65,7 @@ componentDidMount(){
     post(`${uri.authenticate}`, payload)
     .then(response=> {
         if(response.data){
-            localStorage.setItem(USER_TOKEN, response.data);
+            localStorage.setItem(localStorageConstants.USER_TOKEN, response.data);
             window.location.href='/';
         }
     })

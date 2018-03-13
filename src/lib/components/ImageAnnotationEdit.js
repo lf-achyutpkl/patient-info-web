@@ -314,6 +314,7 @@ export default class ImageAnnotationEdit extends React.Component {
       if(this.selectedItem != null){
         this.selectedItem['stroke'] = option.color
       }
+      this.props.update(this.data);
       this.setState({hasChanged:true});
       this.canvas.renderAll();
       this.hideAnnModal();
