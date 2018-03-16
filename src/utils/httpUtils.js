@@ -27,3 +27,11 @@ export function post(url, body){
       }
   });
 }
+
+  export function destroy(url, body){ 
+    return axios.delete(url, body).then(response => response.data).catch(error=>{
+      if(error.response && error.response.data.error.code==401){
+        window.location.href='/login';
+        }
+    });
+}

@@ -23,6 +23,7 @@
 }
 
 .image-annotation-selection {
+  width: 250px;
   opacity: 0;
   position: absolute;
   top: 0;
@@ -45,6 +46,7 @@
 }
 
 .image-annotation-selection > p {
+  width: 140px;
   display: inline-block;
   margin: 0;
 }

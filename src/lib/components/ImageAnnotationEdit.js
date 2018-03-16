@@ -5,6 +5,8 @@ import Circle from '../utils/Circle';
 import Polygon from '../utils/Polygon';
 
 import { fabric } from 'fabric';
+import { localStorageConstants } from '../../config/localStorageConstants';
+import RefreshIndicator from 'material-ui/RefreshIndicator';
 
 const KEYCODE_ESC = 27;
 const KEYCODE_CTRL = 17;
@@ -26,7 +28,9 @@ export default class ImageAnnotationEdit extends React.Component {
         text: '',
         searchText: '',
       },
-      hasChanged:false
+      hasChanged:false,
+      useShortcutKey:false,
+      isImageLoading:true,
     };
 
     this.selectedItem = null;
@@ -90,6 +94,7 @@ export default class ImageAnnotationEdit extends React.Component {
     var that = this;
     img.onload = function() {
         canvas.setBackgroundImage(img.src, canvas.renderAll.bind(canvas), {width: that.props.width, height: that.props.height});
+        that.setState({isImageLoading:false});
     }
     img.src = this.props.imageURL;
 
@@ -267,7 +272,6 @@ export default class ImageAnnotationEdit extends React.Component {
   }
 
   showAnnModal(itemId) {
-    
     let selectedItemId = itemId;
     this.selectedItemId = selectedItemId;
 
@@ -276,16 +280,23 @@ export default class ImageAnnotationEdit extends React.Component {
     let { top, left, height, caption } = item;
 
     let annModal = { ...this.state.annModal };
-    annModal.position.top = top - 10;
-    annModal.position.left = left + 50;
+    annModal.position.top = 200;
+    annModal.position.left = 900;
     annModal.text = caption;
     annModal.display = 'block';
     annModal.isEdit = !caption;
     annModal.searchText = '';
-    this.setState({ annModal });
+    let lastSavedOption=localStorage.getItem(localStorageConstants.LAST_SAVED_OPTION);
+      this.setState({ annModal },()=>{
+        if(this.state.useShortcutKey && lastSavedOption){  
+          this.savePreviousAnn(JSON.parse(lastSavedOption));
+          this.setState({useShortcutKey:false});
+        }
+      });
   }
 
   showAnnCreateModal({ top, left, height }) {
+   
     let annModal = { ...this.state.annModal };
     annModal.position.top = top + height;
     annModal.position.left = left;
@@ -304,7 +315,7 @@ export default class ImageAnnotationEdit extends React.Component {
   }
 
   saveAnn(option) {
-    return () => {
+       return () => {
       if (!this.selectedItemId) return;
       let item = this.data.items[this.selectedItemId];
       if (!item) return;
@@ -313,13 +324,30 @@ export default class ImageAnnotationEdit extends React.Component {
       this.data.items[this.selectedItemId]['stroke'] = option.color;
       if(this.selectedItem != null){
         this.selectedItem['stroke'] = option.color
-      }
+      }      
+      localStorage.setItem(localStorageConstants.LAST_SAVED_OPTION, JSON.stringify(option));
       this.props.update(this.data);
       this.setState({hasChanged:true});
       this.canvas.renderAll();
       this.hideAnnModal();
     };
   }
+
+  savePreviousAnn(option) {
+   if (!this.selectedItemId) return;
+   let item = this.data.items[this.selectedItemId];
+   if (!item) return;
+   this.data.items[this.selectedItemId]['code'] = option.value;
+   this.data.items[this.selectedItemId]['caption'] = option.displayLabel;
+   this.data.items[this.selectedItemId]['stroke'] = option.color;
+   if(this.selectedItem != null){
+     this.selectedItem['stroke'] = option.color
+   }      
+   this.props.update(this.data);
+   this.setState({hasChanged:true});
+   this.canvas.renderAll();
+   this.hideAnnModal();
+}
 
   deleteAnn() {
     this.setState({hasChanged:true});
@@ -349,7 +377,10 @@ export default class ImageAnnotationEdit extends React.Component {
         }
     }
     else if(e.keyCode == KEYCODE_CTRL) {
-      this.enableDrawRect();
+      this.setState({useShortcutKey:true},()=>{
+        this.enableDrawRect();
+      })
+      
     }
   }
 
@@ -471,6 +502,18 @@ export default class ImageAnnotationEdit extends React.Component {
         ref={e => (this.elem = e)}
         onMouseOut={this.mouseOut}
       >
+
+      {            
+        this.state.isImageLoading  &&
+        <RefreshIndicator
+          size={50}
+          left={70}
+          top={0}
+          loadingColor="#FF9800"
+          status="loading"
+          style={{display:'inline-block',position: 'absolute',margin:"250px 350px"}}
+        />
+      }
         <div className="image-annotation-toolbar">
           <button onClick={this.enableDrawRect}>Draw Rectangle</button>
           <button onClick={this.enableDrawCircle}>Draw Circle</button>

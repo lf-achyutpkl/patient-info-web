@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {get, put} from '../../utils/httpUtils';
+import {get, put,destroy} from '../../utils/httpUtils';
 import {baseUrl, uri} from '../../config/uri';
 import ImageAnnotationEdit from '../../lib/components/ImageAnnotationEdit';
 import {localStorageConstants} from '../../config/localStorageConstants';
@@ -180,10 +180,12 @@ class AnnotateEditor extends Component {
           <div style={{width:"18%",float:"left"}}>
           <DropdownTreeSelect className="tree-dropdown" data={this.state.diagnosisDropdownTree} onChange={this._onDiagnosisChange} />
           <div>
-            <label>Tags : </label>
+            {this.state.annotations[this.state.currentIndex].tags.length > 0 &&
+              <label>Tags : </label>
+            }
             {this.state.annotations[this.state.currentIndex].tags.map((tag, index)=>{
               return(
-              <Chip style={{display:"inline-block",marginLeft:"5px"}} key={index}>
+              <Chip style={{display:"inline-block",marginLeft:"5px"}} key={index} onRequestDelete={()=>this._deleteTags(tag.id,this.state.annotations[this.state.currentIndex].id)}>
               {tag.tagName}
               </Chip>
               )
@@ -552,6 +554,18 @@ class AnnotateEditor extends Component {
   _scrollToCurrentIndex=()=>{
     let topPos = document.getElementById('activeIndex').offsetTop;
     document.getElementById('scrollable-container').scrollTop = topPos-10;
+  }
+
+  _deleteTags=(tagId,imageId)=>{
+    let url = uri.tags+"/"+tagId+"/"+imageId;
+    destroy(url)
+      .then(response =>{
+          let foundIndex = this.state.annotations.findIndex(x => x.id == imageId);
+          let newAnnotations=this.state.annotations;
+          let newTags=this.state.annotations[foundIndex].tags.filter(x=>x.id !=tagId);    
+          newAnnotations[foundIndex].tags=newTags;
+          this.setState({annotations:newAnnotations});
+        });
   }
 
 };
