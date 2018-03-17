@@ -377,7 +377,7 @@ class AnnotateEditor extends Component {
       let data = this.state.data;
       data.items[item.id] = item;
       this.setState({data},()=>{
-        // console.log("after set data",data);
+          this.update(data);
       });
   }
 

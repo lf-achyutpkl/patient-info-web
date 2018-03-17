@@ -23,6 +23,11 @@ function requireAuth(nextState, replace) {
   }
 }
 
+function deleteToken(nextState, replace) { 
+  localStorage.removeItem(localStorageConstants.USER_TOKEN);
+  localStorage.removeItem(localStorageConstants.LOGGED_USER);
+}
+
 function getLoggedUser(){
   let user=localStorage.getItem(localStorageConstants.LOGGED_USER);
   return JSON.parse(user);
@@ -37,7 +42,7 @@ let routes = (
       <Route path={'/'} component={Annotates} loggedUser={getLoggedUser()}/>
       <Route path={'/manageBatch'} component={ManageBatch}/>
     </Route>
-    <Route path={'/login'} component={Login} />
+    <Route path={'/login'} component={Login} onEnter={deleteToken} />
   </Router>
 );
 

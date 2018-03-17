@@ -11,7 +11,6 @@ class Login extends Component {
 
     constructor(props){
         
-        localStorage.removeItem(localStorageConstants.USER_TOKEN);
         super(props);
 
         this.state = {
@@ -53,7 +52,7 @@ class Login extends Component {
     );
   }
 
-  handleClick(event){
+   handleClick(event){
     if(!this.state.email || !this.state.password){
         alert("Email and Password are required.");
         return;
