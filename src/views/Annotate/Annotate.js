@@ -270,18 +270,6 @@ class AnnotateEditor extends Component {
 
             </div>
         </Dialog>
-
-        
-        <Dialog
-          title="Confirmation"
-          actions={actions_confirmation}
-          modal={false}
-          open={this.state.confirmation_open}
-          onRequestClose={this._handleConfirmationClose}
-          >
-          You have not saved your changes. Are you sure you want to proceed to next image ?
-          </Dialog>
-
         </div>
       );
     }
@@ -298,9 +286,7 @@ class AnnotateEditor extends Component {
     });
 
     let annotation = {...this.state.annotations[this.state.currentIndex], annotationInfo: JSON.stringify(data)};
-    // this.setState({annotation}, () => {
-      this._updateAnnotation(annotation,false,false);
-    // })
+      this._updateAnnotation(annotation,false);
 
   };
 
@@ -309,17 +295,17 @@ class AnnotateEditor extends Component {
     return JSON.parse(user);
   }
 
-  _updateAnnotation(annotation,isReject=false,refresh=true){
+  _updateAnnotation(annotation,isReject=false){
     if(isReject){
       annotation.isReject=true;
     }
     put(`${uri.annotation}/${annotation.id}`,annotation).then(response=>{
-      if(refresh){   
+     
       let foundIndex = this.state.annotations.findIndex(x => x.id == annotation.id);
       let newAnnotations=this.state.annotations;
       newAnnotations[foundIndex] = response.data;   
       this.setState({annotations:newAnnotations,open: false});
-      }
+     
       if(isReject){
         this.setState({currentIndex:this.state.currentIndex==this.state.annotations.length-1?0:this.state.currentIndex+1});
       }
@@ -363,28 +349,16 @@ class AnnotateEditor extends Component {
     this.setState({confirmation_open: false});
   }
 
-  _onNext = () => {
-    if(this.state.hasChanges){
-       this.setState({confirmation_open: true,goToIndex:this.state.currentIndex+1});
-    }else{
+  _onNext = () => { 
     this._setAnnotationsIndex(this.state.currentIndex+1);
-    }
   }
 
   _onPrevious = () => {
-    if(this.state.hasChanges){
-      this.setState({confirmation_open: true,goToIndex:this.state.currentIndex-1});
-    }else{
       this._setAnnotationsIndex(this.state.currentIndex-1);
-    }
   }
 
   _goToIndex = (index) => {
-    if(this.state.hasChanges){
-      this.setState({confirmation_open: true,goToIndex:index});
-    }else{
       this._setAnnotationsIndex(index);
-    }
   }
 
   _add = (item, cb) => {
@@ -420,23 +394,17 @@ class AnnotateEditor extends Component {
   }
 
   _setAnnotationsIndex=(index=0)=>{
-    if(this.state.confirmation_open){
-      index=this.state.goToIndex;
-      this.setState({confirmation_open: false});
-    }
     localStorage.removeItem('viewportTransform');
     let data = {items: {}};
-    localStorage.setItem("currentIndex_"+this.props.location.query.batchId,JSON.stringify(index));
-    this.setState({currentIndex:index},()=>{ 
+    localStorage.setItem("currentIndex_"+this.props.location.query.batchId,JSON.stringify(index)); 
       this._prefetchImage(); 
-      if(this.state.annotations[this.state.currentIndex].annotationInfo != null && this.state.annotations[this.state.currentIndex].annotationInfo != ""){
-        data = JSON.parse(this.state.annotations[this.state.currentIndex].annotationInfo); 
+      if(this.state.annotations[index].annotationInfo != null && this.state.annotations[index].annotationInfo != ""){
+        data = JSON.parse(this.state.annotations[index].annotationInfo); 
       }
-      this.setState({data},()=>{
+      this.setState({data,currentIndex:index},()=>{
         let selectedCodes=this._fetchSelectedCodeFromAnnotationInfo();
         this._resetDiagnosisList(selectedCodes);        
       });
-    });
   }
 
   _constructQueryParam = () => {
