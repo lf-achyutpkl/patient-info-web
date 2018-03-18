@@ -10,6 +10,9 @@ import Chip from 'material-ui/Chip';
 import RaisedButton from 'material-ui/RaisedButton';
 import DropdownTreeSelect from 'react-dropdown-tree-select'
 import TextField from 'material-ui/TextField';
+import AppBar from 'material-ui/AppBar';
+import Tabs, { Tab } from 'material-ui/Tabs';
+import PropTypes from 'prop-types';
 import {
   Table,
   TableRow,
@@ -23,18 +26,17 @@ const ANNOTATIONS = 'annotation';
 const SELECTED_INDEX = 'selectedIndex';
 const IMAGE_WIDTH = 900;
 const IMAGE_HEIGHT = 600;
-const OPTIONS = [
-  // {label: 'Microaneurysm', color: 'green'},
-  // {label: 'Haemorrhages', color: 'blue'},
-  // {label: 'Venous bedding', color: 'yellow'},
-  // {label: 'Intraretinal microvascular abnormalities(IRMA)', color: 'cyan'},
-  // {label: 'New vessels at the disc (NVD)', color: 'pink'},
-  // {label: 'New vessels elsewhere (NVE)', color: 'maroon'},
-  // {label: 'Vitreous haemorrhage', color: 'Aqua'},
-  // {label: 'Pre retinal haemorrrhage', color: 'Teal'},
-  // {label: 'Hard exudates', color: 'DARKSALMON'},
-  // {label: 'Retinal thickening', color: 'PURPLE'}
-];
+function TabContainer(props) {
+  return (
+    <div style={{ padding: 8 * 3 }}>
+      {props.children}
+    </div>
+  );
+}
+
+TabContainer.propTypes = {
+  children: PropTypes.node.isRequired,
+};
 
 class AnnotateEditor extends Component {
 
@@ -67,26 +69,11 @@ class AnnotateEditor extends Component {
           hasChanges:false,
           goToIndex:0,
           options:[],
-          noToPrefetch:5
+          noToPrefetch:5,          
+          selectItemId:0,
+          value:"0"
         }
     }
-
-    // componentWillMount(){
-    //   let previousEntries = localStorage.getItem(ANNOTATIONS);
-    //   let selectedIndex = localStorage.getItem(SELECTED_INDEX);
-    //   let queryParamIds = this.props.location.query.id.split(',');
-
-    //   if(previousEntries != 'null' && previousEntries && selectedIndex){
-    //     if(JSON.parse(previousEntries).toString() == queryParamIds.toString()){
-    //       this.setState({currentIndex: JSON.parse(selectedIndex)})
-    //     } else {
-    //       localStorage.setItem(SELECTED_INDEX, 0);
-    //       localStorage.setItem(ANNOTATIONS, null);
-    //     }
-    //   }
-
-    //   this.setState({annotationIds: queryParamIds})
-    // }
 
     componentDidMount(){
       let index=localStorage.getItem("currentIndex_"+this.props.location.query.batchId)? JSON.parse(localStorage.getItem("currentIndex_"+this.props.location.query.batchId)):0
@@ -95,6 +82,10 @@ class AnnotateEditor extends Component {
       this._fetchAllTags();
       this._fetchOptions();
     }
+
+    tabChange = (value) => {
+      this.setState({ value });
+    };
 
     /**
      * ImageAnnotationEdit Props:
@@ -149,15 +140,11 @@ class AnnotateEditor extends Component {
         
           <div style={{width:"82%",float:"left"}}>
           <div>
-          {            
-            this.state.annotations.length > 1 && this.state.currentIndex > 0 &&
-            <button type="button" className="btn btn-primary"  style={{marginRight:'10px',marginBottom:'15px'}} onClick={this._onPrevious}>Previous Image</button>
-          }
+        
+            <button type="button" className="btn btn-primary" disabled={this.state.annotations.length > 1 && this.state.currentIndex == 0}  style={{marginRight:'10px',marginBottom:'15px'}} onClick={this._onPrevious}>Previous Image</button>
 
-          {            
-            this.state.annotations.length > 1 && this.state.currentIndex < this.state.annotations.length - 1 &&
-            <button type="button" className="btn btn-primary" style={{marginBottom:'15px'}} onClick={this._onNext}>Next Image</button>
-          }
+            <button type="button" className="btn btn-primary" disabled={this.state.annotations.length > 1 && this.state.currentIndex >= this.state.annotations.length} style={{marginBottom:'15px'}} onClick={this._onNext}>Next Image</button>
+ 
 
           {            
             this.state.annotations.length > 0  &&
@@ -172,6 +159,7 @@ class AnnotateEditor extends Component {
             width={IMAGE_WIDTH}
             update={this.update}
             data={this.state.data}
+            selectItemId={this.state.selectItemId}
             options={this.state.options}
             add={this._add}
             remove={this._remove}
@@ -193,17 +181,29 @@ class AnnotateEditor extends Component {
             }
             <RaisedButton label="Add Tags" primary={true} onClick={() => this._addTags(this.state.annotations[this.state.currentIndex])} style={{display:"block",marginTop:"10px"}}/>
           </div>
-          <TextField
+
+        <div className="tabContainer">
+          {/* <AppBar position="static"> */}
+            <Tabs value={this.state.value} onChange={this.tabChange}>
+              <Tab value="0" label="Images" />
+              <Tab value="1" label="Annotations" />
+            </Tabs>
+          {/* </AppBar> */}
+          {this.state.value === "0" && <TabContainer>
+
+            {/* patient / image list block */}
+
+                      <TextField
             style={{maxWidth:"200px"}}
-            hintText="Filter Patient"
+            hintText="Filter Image"
             onChange={(e) => this._filterPatient(e)}
           />
           <div id="scrollable-container"  style={{maxHeight:"440px",overflow:"auto",marginTop:"10px"}}>
           
-          <Table id="tags-list">
+          <Table id="tags-list"  style={{maxHeight:"440px",overflow:"auto",marginTop:"10px"}}>
           <TableHeader displaySelectAll={false} adjustForCheckbox={false}>
             <TableRow>
-              <TableHeaderColumn>Patient Name</TableHeaderColumn>
+              <TableHeaderColumn>Images</TableHeaderColumn>
             </TableRow>
           </TableHeader>
           <TableBody showRowHover displayRowCheckbox={false}  >
@@ -211,13 +211,42 @@ class AnnotateEditor extends Component {
               this.state.filteredAnnotation &&
                 this.state.filteredAnnotation.map((annotation,index) =>
                   <TableRow key={annotation.id} id={this.state.currentIndex==index?"activeIndex":""} style={{background:this.state.currentIndex==index?"rgba(224, 224, 223, 1)":""}}>
-                    <TableRowColumn><a href="#" onClick={() => this._goToIndex(index)}>{`${annotation.patient.firstName} ${annotation.patient.lastName}`}</a></TableRowColumn>
+                    <TableRowColumn><a href="javascript:void(0);" onClick={() => this._goToIndex(index)}>{`${annotation.patient.firstName} ${annotation.patient.lastName}`}</a></TableRowColumn>
                   </TableRow>
                 )
             }
           </TableBody>
         </Table>
           </div>
+
+          </TabContainer>}
+          {this.state.value === "1" && <TabContainer>
+
+          <Table id="annotation-list"  style={{maxHeight:"440px",overflow:"auto",marginTop:"10px"}}>
+          <TableHeader displaySelectAll={false} adjustForCheckbox={false}>
+            <TableRow>
+              <TableHeaderColumn>Annotations</TableHeaderColumn>
+            </TableRow>
+          </TableHeader>
+          <TableBody showRowHover displayRowCheckbox={false}  >
+            {
+              this.state.data &&
+
+              Object.keys(this.state.data.items).map((itemId) =>{
+               return this.state.data.items[itemId].type != "whole_image" ?
+                  <TableRow key={itemId} style={{background:this.state.selectItemId==itemId?"rgba(224, 224, 223, 1)":""}}>
+                    <TableRowColumn><a href="javascript:void(0);" onClick={() => this._selectAnnotation(itemId)}>{`${this.state.data.items[itemId].caption}`}</a></TableRowColumn>
+                  </TableRow>
+              :
+              ""
+              })
+            }
+          </TableBody>
+        </Table>
+
+          </TabContainer>}
+        </div>
+
           </div>
           
           <Dialog
@@ -258,7 +287,6 @@ class AnnotateEditor extends Component {
     }
 
   update = (data) => {
-    this.setState({hasChanges:false});
     let oldCanvas = document.getElementById('canvas');
     oldCanvas = null;   
 
@@ -271,7 +299,7 @@ class AnnotateEditor extends Component {
 
     let annotation = {...this.state.annotations[this.state.currentIndex], annotationInfo: JSON.stringify(data)};
     // this.setState({annotation}, () => {
-      this._updateAnnotation(annotation);
+      this._updateAnnotation(annotation,false,false);
     // })
 
   };
@@ -281,15 +309,17 @@ class AnnotateEditor extends Component {
     return JSON.parse(user);
   }
 
-  _updateAnnotation(annotation,isReject=false){
+  _updateAnnotation(annotation,isReject=false,refresh=true){
     if(isReject){
       annotation.isReject=true;
     }
     put(`${uri.annotation}/${annotation.id}`,annotation).then(response=>{
+      if(refresh){   
       let foundIndex = this.state.annotations.findIndex(x => x.id == annotation.id);
       let newAnnotations=this.state.annotations;
-      newAnnotations[foundIndex] = response.data;      
+      newAnnotations[foundIndex] = response.data;   
       this.setState({annotations:newAnnotations,open: false});
+      }
       if(isReject){
         this.setState({currentIndex:this.state.currentIndex==this.state.annotations.length-1?0:this.state.currentIndex+1});
       }
@@ -362,7 +392,7 @@ class AnnotateEditor extends Component {
     let data = this.state.data;
     data.items[item.id] = item;    
     this.setState({
-        data:data,hasChanges:true
+        data:data
     }, () => {
       cb && cb(item.id);
     });
@@ -386,13 +416,13 @@ class AnnotateEditor extends Component {
     let items = data.items;
     delete items[item.id];
     data.items = items;
-    this.setState({data:data,hasChanges:true});
+    this.setState({data});
   }
 
   _setAnnotationsIndex=(index=0)=>{
     if(this.state.confirmation_open){
       index=this.state.goToIndex;
-      this.setState({confirmation_open: false,hasChanges: false});
+      this.setState({confirmation_open: false});
     }
     localStorage.removeItem('viewportTransform');
     let data = {items: {}};
@@ -427,7 +457,7 @@ class AnnotateEditor extends Component {
           if(this.state.annotations[this.state.currentIndex].annotationInfo != null && this.state.annotations[this.state.currentIndex].annotationInfo != ""){
             data = JSON.parse(this.state.annotations[this.state.currentIndex].annotationInfo);
           }
-          this.setState({data:data},()=>{
+          this.setState({data},()=>{
             this._fetchAllDiagnosis();            
             this._scrollToCurrentIndex();
           });
@@ -464,15 +494,25 @@ class AnnotateEditor extends Component {
   }
 
   _fetchAllDiagnosis=(selectedCodes)=>{
+
     let url=uri.annotationLabels+'/whole_image_annotation';
-    get(url)
+    let diagnosisList=localStorage.getItem(localStorageConstants.WHOLE_IMAGE_LABEL);
+    diagnosisList=diagnosisList?JSON.parse(diagnosisList):null;
+    if(diagnosisList){
+      this.setState({diagnosisList:diagnosisList},()=>{
+        let selectedCodes=this._fetchSelectedCodeFromAnnotationInfo();
+        this._resetDiagnosisList(selectedCodes);
+      })        
+    }
+    else{
+      get(url)
     .then(response =>{
       this.setState({diagnosisList:response.data},()=>{
         let selectedCodes=this._fetchSelectedCodeFromAnnotationInfo();
         this._resetDiagnosisList(selectedCodes);
-      })
-        
+      })        
       });
+    }
   }
 
   _resetDiagnosisList=(selectedCodes)=>{
@@ -513,7 +553,6 @@ class AnnotateEditor extends Component {
 }
 
   _onDiagnosisChange=(currentNode, selectedNodes) => { 
-      this.setState({hasChanges:true});
       let selectedCodes=[];
       if(currentNode._parent && currentNode.checked==true){
         selectedNodes=selectedNodes.filter(node=>{
@@ -566,6 +605,10 @@ class AnnotateEditor extends Component {
           newAnnotations[foundIndex].tags=newTags;
           this.setState({annotations:newAnnotations});
         });
+  }
+
+  _selectAnnotation=(itemId)=>{
+    this.setState({selectItemId:itemId});
   }
 
 };

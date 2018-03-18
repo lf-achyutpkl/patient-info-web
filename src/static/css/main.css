@@ -119,4 +119,12 @@
   max-height:400px !important;
 }
 
+.tabContainer{
+  margin-top:10px;
+}
+
+.tabContainer > div{
+  padding: 0 !important;
+}
+
 

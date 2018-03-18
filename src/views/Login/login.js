@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import { post} from '../../utils/httpUtils';
+import { post,get} from '../../utils/httpUtils';
 import {baseUrl, uri} from '../../config/uri';
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
 import AppBar from 'material-ui/AppBar';
@@ -65,6 +65,7 @@ class Login extends Component {
     .then(response=> {
         if(response.data){
             localStorage.setItem(localStorageConstants.USER_TOKEN, response.data);
+            this._fetchAllDiagnosis();
             window.location.href='/';
         }
     })
@@ -72,6 +73,16 @@ class Login extends Component {
        alert("Email and Password combination does not match.");
     });
     }
+
+    _fetchAllDiagnosis=()=>{
+        let url=uri.annotationLabels+'/whole_image_annotation';
+        get(url)
+        .then(response =>{
+            if(response){
+                localStorage.setItem(localStorageConstants.WHOLE_IMAGE_LABEL,JSON.stringify(response.data));
+            }
+          })
+      }
 }
 const style = {
     margin: 15,

@@ -72,7 +72,19 @@ export default class ImageAnnotationEdit extends React.Component {
     this.data=newProps.data;
     this.init();
     this.forceUpdate();
+    if(newProps.selectItemId){    
+      this.selectObject(newProps.selectItemId)
+    }
   }
+
+ selectObject = function (itemId) {
+   let canvas=this.canvas;
+    canvas.getObjects().forEach(function(o) {
+        if(o.itemId === itemId) {
+          canvas.setActiveObject(o);
+        }
+    })
+}
 
   componentWillUnmount() {
     document.removeEventListener("keydown", this.handleEscKey, false);
@@ -277,11 +289,11 @@ export default class ImageAnnotationEdit extends React.Component {
 
     let item = this.data.items[itemId];
     if (!item) return;
-    let { top, left, height, caption } = item;
+    let { top, left, height, caption,width } = item;
 
     let annModal = { ...this.state.annModal };
-    annModal.position.top = 200;
-    annModal.position.left = 900;
+    annModal.position.top = top-40;
+    annModal.position.left = left+width+20;
     annModal.text = caption;
     annModal.display = 'block';
     annModal.isEdit = !caption;
@@ -565,7 +577,7 @@ export default class ImageAnnotationEdit extends React.Component {
               {this.getOptions().map((option, index) => {
                 return (
                   <li key={index}>
-                    <a href="#" onClick={this.saveAnn(option)}>{option.displayLabel}</a>
+                    <a href="javascript:void(0);" onClick={this.saveAnn(option)}>{option.displayLabel}</a>
                   </li>
                 );
               })}
