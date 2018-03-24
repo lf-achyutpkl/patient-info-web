@@ -494,14 +494,15 @@ class AnnotateEditor extends Component {
 
   this.setState({data},()=>{
     let diagnosisTree=[];
-    this.state.diagnosisList.forEach(element => {
+    let diagnosisList=this.state.diagnosisList?this.state.diagnosisList:[];
+    diagnosisList.forEach(element => {
       if(element.parentId===0){
         let parent={label:element.displayLabel,value:element.value,checked:selectedCodes.includes(element.value),expanded:true};
         if(parent.checked){
           setTimeout(()=>{ this._addWholeImageAnnotation(parent); }, 1000);          
         }
         let childrens=[];
-        this.state.diagnosisList.forEach((children)=>{
+        diagnosisList.forEach((children)=>{
                       if(children.parentId==parseInt(element.id)){
                         let childItem={label:children.displayLabel,value:children.value,checked:selectedCodes.includes(children.value)};
                         childrens.push(childItem);

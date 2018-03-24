@@ -40,7 +40,7 @@ export default class ImageAnnotationEdit extends React.Component {
     this.enableDrawCircle = this.enableDrawCircle.bind(this);
     this.enableDrawPolygon = this.enableDrawPolygon.bind(this);
     this.enableMovement = this.enableMovement.bind(this);
-    this.saveState = this.saveState.bind(this);
+    // this.saveState = this.saveState.bind(this);
     this.loadState = this.loadState.bind(this);
     this.hideAnnModal = this.hideAnnModal.bind(this);
     this.showAnnModal = this.showAnnModal.bind(this);
@@ -428,9 +428,9 @@ export default class ImageAnnotationEdit extends React.Component {
     this.setState({hasChanged:true});
   }
 
-  saveState() {
-    if (this.props.update) this.props.update(this.data);
-  }
+  // saveState() {
+  //   if (this.props.update) this.props.update(this.data);
+  // }
 
   loadState() {
     let data = this.data || { items: {} };
