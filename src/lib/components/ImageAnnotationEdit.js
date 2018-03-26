@@ -31,6 +31,8 @@ export default class ImageAnnotationEdit extends React.Component {
       hasChanged:false,
       useShortcutKey:false,
       isImageLoading:true,
+      imageScaleX:0,
+      imageScaleY:0
     };
 
     this.selectedItem = null;
@@ -106,7 +108,7 @@ export default class ImageAnnotationEdit extends React.Component {
     var that = this;
     img.onload = function() {
         canvas.setBackgroundImage(img.src, canvas.renderAll.bind(canvas), {width: that.props.width, height: that.props.height});
-        that.setState({isImageLoading:false});
+        that.setState({isImageLoading:false,imageScaleX:(that.props.width/img.width),imageScaleY:(that.props.height/img.height)});
     }
     img.src = this.props.imageURL;
 
@@ -404,7 +406,9 @@ export default class ImageAnnotationEdit extends React.Component {
   }
 
   addItem(item) {
-    this.setState({hasChanged:true});
+    this.setState({hasChanged:true});    
+    item.imageScaleX = this.state.imageScaleX;
+    item.imageScaleY = this.state.imageScaleY;
     localStorage.setItem('viewportTransform', JSON.stringify(this.canvas.viewportTransform));
     this.props.add(item, itemId => {
       this.showAnnModal(itemId);
@@ -424,6 +428,8 @@ export default class ImageAnnotationEdit extends React.Component {
     item.angle = target.angle;
     item.scaleX = target.scaleX;
     item.scaleY = target.scaleY;
+    item.imageScaleX = this.state.imageScaleX;
+    item.imageScaleY = this.state.imageScaleY;
     this.data.items[itemId] = item;
     this.setState({hasChanged:true});
   }
