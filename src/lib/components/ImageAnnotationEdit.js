@@ -103,25 +103,13 @@ export default class ImageAnnotationEdit extends React.Component {
       if (!itemId) return;
       this.showAnnModal(itemId);
       this.selectedItem = e.target;
-    });
+      this.selectedItemId = this.selectedItem.itemId;
 
-    canvas.on('mouse:over', e => {
-      // let itemId = e.target.itemId;
-      // if (!itemId) return;
-      // this.selectedItem = e.target;
-      // this.selectedItemId = itemId;
     });
 
     // for image movement after zoom
     canvas.on('mouse:up', function (e) {
-      let item = e.target;
-      if (!item){
         panning = false;
-        return;
-      } 
-      this.selectedItem = item;
-      this.selectedItemId = item.itemId;
-
     });
 
     canvas.on('mouse:down', function (e) {
@@ -257,13 +245,13 @@ export default class ImageAnnotationEdit extends React.Component {
   }
 
   mouseOut(e) {
-    if (!this.elem.contains(e.relatedTarget)) { 
-      this.hideAnnModal();
-      if(this.state.hasChanged==true){
-        this.props.update(this.data);
-        this.setState({hasChanged:false});
-      }
-    }
+    // if (!this.elem.contains(e.relatedTarget)) { 
+      // this.hideAnnModal();
+      // if(this.state.hasChanged==true){
+        // this.props.update(this.data);
+        // this.setState({hasChanged:false});
+      // }
+    // }
   }
 
   hideAnnModal() {
@@ -334,7 +322,7 @@ export default class ImageAnnotationEdit extends React.Component {
       }      
       localStorage.setItem(localStorageConstants.LAST_SAVED_OPTION, JSON.stringify(option));
       this.props.update(this.data);
-      this.setState({hasChanged:true});
+      // this.setState({hasChanged:true});
       this.canvas.renderAll();
       this.hideAnnModal();
     // };
@@ -351,13 +339,13 @@ export default class ImageAnnotationEdit extends React.Component {
      this.selectedItem['stroke'] = option.color
    }      
    this.props.update(this.data);
-   this.setState({hasChanged:true});
+  //  this.setState({hasChanged:true});
    this.canvas.renderAll();
    this.hideAnnModal();
 }
 
   deleteAnn() {
-    this.setState({hasChanged:true});
+    // this.setState({hasChanged:true});
     let itemId = this.selectedItemId;
     let item = this.data.items[itemId];
     if (!item) return;
@@ -399,7 +387,7 @@ export default class ImageAnnotationEdit extends React.Component {
   }
 
   addItem(item) {
-    this.setState({hasChanged:true});
+    // this.setState({hasChanged:true});
     localStorage.setItem('viewportTransform', JSON.stringify(this.canvas.viewportTransform));
     this.props.add(item, itemId => {
       this.showAnnModal(itemId);
@@ -420,7 +408,7 @@ export default class ImageAnnotationEdit extends React.Component {
     item.scaleX = target.scaleX;
     item.scaleY = target.scaleY;
     this.data.items[itemId] = item;
-    this.setState({hasChanged:true});
+    // this.setState({hasChanged:true});
   }
 
   saveState() {
