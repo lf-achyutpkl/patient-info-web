@@ -21,6 +21,7 @@ import {get,post,put} from '../../utils/httpUtils';
 import AutoComplete from 'material-ui/AutoComplete';
 import ReactImageMagnify from 'react-image-magnify';
 import Chip from 'material-ui/Chip';
+import {CSVLink, CSVDownload} from 'react-csv';
 
 class Annotations extends Component{
 
@@ -46,7 +47,8 @@ class Annotations extends Component{
       annotations: [],
       selectedIndexes: [],
       selectedTag:{},
-      currentIndex:0
+      currentIndex:0,
+      downloadImages:[]
     }
   }
 
@@ -110,9 +112,12 @@ class Annotations extends Component{
         {                  
           this.state.annotations.length != 0 &&
             <div style={{float: 'right', marginTop: '15px',marginLeft:'10px'}}>             
-              <Link className="btn btn-primary" to={`/annotate?batchId=${this.state.selectedBatchId}`}>Start Annotation</Link>
+              <Link className="btn btn-primary" to={`/annotate?batchId=${this.state.selectedBatchId}`}>Start Annotation</Link>         
+              <CSVLink style={{marginLeft:'10px'}} className="btn btn-primary" data={this.state.downloadImages} filename="annotations.csv" >Download</CSVLink>
             </div>
         }
+
+        
 
         <Table>
           <TableHeader displaySelectAll={false}  adjustForCheckbox={false}>
@@ -267,8 +272,11 @@ class Annotations extends Component{
     });
   }
 
-  _constructQueryParam = () => {  
+  _constructQueryParam = (allImage=false) => {  
     let { page, pageSize } = this.state.pagination;
+    if(allImage){
+      pageSize=1000;
+    }
     let batchId=this.state.currentUser.batches.length > 0 ? this.state.currentUser.batches[0].id : 0;
     return `?annotation=${this.state.isReject?'all':this.state.defaultShowAnnotationValue}&page=${page}&pageSize=${pageSize}&batchId=${this.state.selectedBatchId}&isReject=${this.state.isReject}&tagId=${this.state.defaultTagValue}`;
   }
@@ -308,8 +316,45 @@ class Annotations extends Component{
    _fetchImagesByBranch = () =>{
       let url = uri.images + this._constructQueryParam();
       get(url)
-      .then(response => this.setState({annotations: response.data, pagination: response.pagination}))
+      .then(response =>{
+         this.setState({annotations: response.data, pagination: response.pagination})
+         this._fetchAllImagesByBranch() 
+        })
    }
+
+   _fetchAllImagesByBranch = () =>{
+    let url = uri.images + this._constructQueryParam(true);
+    let downloadData=[];
+    get(url)
+    .then(response => {
+
+      response.data.forEach(image=>{
+        if(image.annotationInfo){   
+        let data=JSON.parse(image.annotationInfo)
+         Object.keys(data.items).forEach(itemId => {
+          let item = data.items[itemId]; 
+          downloadData.push({image_name:image.imageName,
+            annotation_type:item.type,
+            left_coordinate:item.left?item.left:null,
+            top_coordinate:item.top?item.top:null,
+            height : item.height?item.height:null,
+            weight : item.weight?item.weight:null,
+            label : item.type=="whole_image"?item.diagnosisCaption:item.caption,
+            value : item.type=="whole_image"?item.diagnosisCode:item.code,
+            scale_x : item.scaleX?item.scaleX:null,
+            scale_y:item.scaleY?item.scaleY:null,
+            image_scale_x:item.imageScaleX?item.imageScaleX:null,
+            image_scale_y:item.imageScaleY?item.imageScaleY:null,
+            angle: item.angle?null:item.angle
+          })
+        });
+        }     
+      })
+
+      this.setState({downloadImages:downloadData});
+
+    })
+ }
 
   _fetchAllTags = () => {   
     let url = uri.tags;

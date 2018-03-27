@@ -34,7 +34,8 @@ function getLoggedUser(){
 }
 
 let routes = (
-  <Router history={browserHistory}>
+  <Router history={browserHistory}>  
+    <Route path={'/login'} component={Login} onEnter={deleteToken} />
     <Route component={App} onEnter={requireAuth} >
       {/* <Route path={'/'} component={Dashboard} /> */}
       <Route path={'/addPatient'} component={AddPatient}/>
@@ -42,7 +43,6 @@ let routes = (
       <Route path={'/'} component={Annotates} loggedUser={getLoggedUser()}/>
       <Route path={'/manageBatch'} component={ManageBatch}/>
     </Route>
-    <Route path={'/login'} component={Login} onEnter={deleteToken} />
   </Router>
 );
 
