@@ -106,15 +106,22 @@ export default class ImageAnnotationEdit extends React.Component {
     });
 
     canvas.on('mouse:over', e => {
-      let itemId = e.target.itemId;
-      if (!itemId) return;
-      this.selectedItem = e.target;
-      this.selectedItemId = itemId;
+      // let itemId = e.target.itemId;
+      // if (!itemId) return;
+      // this.selectedItem = e.target;
+      // this.selectedItemId = itemId;
     });
 
     // for image movement after zoom
     canvas.on('mouse:up', function (e) {
+      let item = e.target;
+      if (!item){
         panning = false;
+        return;
+      } 
+      this.selectedItem = item;
+      this.selectedItemId = item.itemId;
+
     });
 
     canvas.on('mouse:down', function (e) {
@@ -565,7 +572,7 @@ export default class ImageAnnotationEdit extends React.Component {
               {this.getOptions().map((option, index) => {
                 return (
                   <li key={index}>
-                    <a href="#" onClick={this.saveAnn(option)}>{option.displayLabel}</a>
+                    <a href="#" onClick={() => this.saveAnn(option)}>{option.displayLabel}</a>
                   </li>
                 );
               })}
