@@ -322,7 +322,7 @@ export default class ImageAnnotationEdit extends React.Component {
   }
 
   saveAnn(option) {
-       return () => {
+      //  return () => {
       if (!this.selectedItemId) return;
       let item = this.data.items[this.selectedItemId];
       if (!item) return;
@@ -337,7 +337,7 @@ export default class ImageAnnotationEdit extends React.Component {
       this.setState({hasChanged:true});
       this.canvas.renderAll();
       this.hideAnnModal();
-    };
+    // };
   }
 
   savePreviousAnn(option) {
