@@ -338,11 +338,9 @@ class Annotations extends Component{
             left_coordinate:item.left?item.left:null,
             top_coordinate:item.top?item.top:null,
             height : item.height?item.height:null,
-            weight : item.weight?item.weight:null,
+            width : item.width?item.width:null,
             label : item.type=="whole_image"?item.diagnosisCaption:item.caption,
             value : item.type=="whole_image"?item.diagnosisCode:item.code,
-            scale_x : item.scaleX?item.scaleX:null,
-            scale_y:item.scaleY?item.scaleY:null,
             image_scale_x:item.imageScaleX?item.imageScaleX:null,
             image_scale_y:item.imageScaleY?item.imageScaleY:null,
             angle: item.angle?null:item.angle

@@ -65,18 +65,23 @@ export default class ImageAnnotationEdit extends React.Component {
     this.handleEscKey = this.handleEscKey.bind(this);
   }
 
-  componentDidMount() {
+  componentDidMount() {    
     this.init();
     document.addEventListener("keydown", this.handleEscKey, false);
   }
 
   componentWillReceiveProps(newProps) {
-    this.data=newProps.data;
-    this.init();
-    this.forceUpdate();
-    if(newProps.selectItemId){    
-      this.selectObject(newProps.selectItemId)
-    }
+      if(newProps.imageURL != this.props.imageURL || (this.data.items.length == 0)  ){
+      this.props=newProps;
+      this.data=newProps.data;
+      this.init();
+      this.forceUpdate();   
+      
+   }
+   if(newProps.selectItemId){    
+    this.selectObject(newProps.selectItemId)
+  } 
+    
   }
 
  selectObject = function (itemId) {
@@ -110,6 +115,7 @@ export default class ImageAnnotationEdit extends React.Component {
         canvas.setBackgroundImage(img.src, canvas.renderAll.bind(canvas), {width: that.props.width, height: that.props.height});
         that.setState({isImageLoading:false,imageScaleX:(that.props.width/img.width),imageScaleY:(that.props.height/img.height)});
     }
+    
     img.src = this.props.imageURL;
 
     canvas.observe('object:selected', e => {
@@ -329,21 +335,24 @@ export default class ImageAnnotationEdit extends React.Component {
   }
 
   saveAnn(option) {
-       return () => {
+      return () => {
+      debugger;
       if (!this.selectedItemId) return;
       let item = this.data.items[this.selectedItemId];
       if (!item) return;
+      debugger;
       this.data.items[this.selectedItemId]['code'] = option.value;
       this.data.items[this.selectedItemId]['caption'] = option.displayLabel;
       this.data.items[this.selectedItemId]['stroke'] = option.color;
       if(this.selectedItem != null){
         this.selectedItem['stroke'] = option.color
       }      
-      localStorage.setItem(localStorageConstants.LAST_SAVED_OPTION, JSON.stringify(option));
-      this.props.update(this.data);
-      this.setState({hasChanged:true});
+      localStorage.setItem(localStorageConstants.LAST_SAVED_OPTION, JSON.stringify(option));      
       this.canvas.renderAll();
       this.hideAnnModal();
+
+      this.props.update(this.data);
+      this.setState({hasChanged:true});
     };
   }
 
@@ -369,6 +378,7 @@ export default class ImageAnnotationEdit extends React.Component {
     let item = this.data.items[itemId];
     if (!item) return;
     this.props.remove(item);
+    this.canvas.getActiveObject().remove();
     this.hideAnnModal();
   }
 
@@ -421,13 +431,13 @@ export default class ImageAnnotationEdit extends React.Component {
 
     let item = { ...this.data.items[itemId] };
 
-    item.width = target.width;
-    item.height = target.height;
+    item.width = target.width*target.scaleX;
+    item.height = target.height*target.scaleY;
     item.left = target.left;
     item.top = target.top;
     item.angle = target.angle;
-    item.scaleX = target.scaleX;
-    item.scaleY = target.scaleY;
+    item.scaleX = 1;
+    item.scaleY = 1;
     item.imageScaleX = this.state.imageScaleX;
     item.imageScaleY = this.state.imageScaleY;
     this.data.items[itemId] = item;

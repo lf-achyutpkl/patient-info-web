@@ -200,7 +200,7 @@ class AnnotateEditor extends Component {
           />
           <div id="scrollable-container"  style={{maxHeight:"440px",overflow:"auto",marginTop:"10px"}}>
           
-          <Table id="tags-list"  style={{maxHeight:"440px",overflow:"auto",marginTop:"10px"}}>
+          <Table id="tags-list"  >
           <TableHeader displaySelectAll={false} adjustForCheckbox={false}>
             <TableRow>
               <TableHeaderColumn>Images</TableHeaderColumn>
@@ -221,8 +221,8 @@ class AnnotateEditor extends Component {
 
           </TabContainer>}
           {this.state.value === "1" && <TabContainer>
-
-          <Table id="annotation-list"  style={{maxHeight:"440px",overflow:"auto",marginTop:"10px"}}>
+            <div class="annottaionContainer" style={{maxHeight:"440px",overflow:"auto",marginTop:"10px"}}>
+          <Table id="annotation-list" >
           <TableHeader displaySelectAll={false} adjustForCheckbox={false}>
             <TableRow>
               <TableHeaderColumn>Annotations</TableHeaderColumn>
@@ -243,7 +243,7 @@ class AnnotateEditor extends Component {
             }
           </TableBody>
         </Table>
-
+          </div>
           </TabContainer>}
         </div>
 
