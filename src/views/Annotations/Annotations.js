@@ -15,7 +15,7 @@ import DropDownMenu from 'material-ui/DropDownMenu';
 import Dialog from 'material-ui/Dialog';
 import FlatButton from 'material-ui/FlatButton';
 
-import {baseUrl,uri,} from '../../config/uri';
+import {baseUrl,uri} from '../../config/uri';
 import {localStorageConstants} from '../../config/localStorageConstants';
 import {get,post,put} from '../../utils/httpUtils';
 import AutoComplete from 'material-ui/AutoComplete';
@@ -113,9 +113,13 @@ class Annotations extends Component{
           this.state.annotations.length != 0 &&
             <div style={{float: 'right', marginTop: '15px',marginLeft:'10px'}}>             
               <Link className="btn btn-primary" to={`/annotate?batchId=${this.state.selectedBatchId}`}>Start Annotation</Link>         
+              {
+              (this.state.currentUser.roles.toLowerCase()=="super admin" || this.state.currentUser.roles.toLowerCase()=="superadmin") &&
               <CSVLink style={{marginLeft:'10px'}} className="btn btn-primary" data={this.state.downloadImages} filename="annotations.csv" >Download</CSVLink>
+              }              
             </div>
         }
+        
 
         
 
@@ -189,7 +193,6 @@ class Annotations extends Component{
           shouldHideHintAfterFirstActivation: false,
           enlargedImagePosition:"over"
       }} />
-          {/* <img width="100%" src={this.state.selectedImageUrl} />           */}
         </div>
         <div className="add-tag-dialog" style={{width:"40%",display:"inline-block",paddingLeft:"20px",verticalAlign:"top"}}>
             <AutoComplete
@@ -338,11 +341,9 @@ class Annotations extends Component{
             left_coordinate:item.left?item.left:null,
             top_coordinate:item.top?item.top:null,
             height : item.height?item.height:null,
-            weight : item.weight?item.weight:null,
+            width : item.width?item.width:null,
             label : item.type=="whole_image"?item.diagnosisCaption:item.caption,
             value : item.type=="whole_image"?item.diagnosisCode:item.code,
-            scale_x : item.scaleX?item.scaleX:null,
-            scale_y:item.scaleY?item.scaleY:null,
             image_scale_x:item.imageScaleX?item.imageScaleX:null,
             image_scale_y:item.imageScaleY?item.imageScaleY:null,
             angle: item.angle?null:item.angle

@@ -205,25 +205,31 @@ export default class ImageAnnotationEdit extends React.Component {
     return true;
   }
 
-  enableDrawRect() {
+  enableDrawRect() {       
+    if(this.props.canEdit){
     this.rectangle.clean();
     this.polygon.clean();
     this.circle.clean();
     this.rectangle.draw();
+    }
   }
 
   enableDrawCircle() {
+    if(this.props.canEdit){
     this.rectangle.clean();
     this.polygon.clean();
     this.circle.clean();
     this.circle.draw();
+    }
   }
 
   enableDrawPolygon() {
+    if(this.props.canEdit){
     this.rectangle.clean();
     this.circle.clean();
     this.polygon.clean();
     this.polygon.draw();
+    }
   }
 
   enableMovement() {
@@ -421,13 +427,13 @@ export default class ImageAnnotationEdit extends React.Component {
 
     let item = { ...this.data.items[itemId] };
 
-    item.width = target.width;
-    item.height = target.height;
+    item.width = target.width*target.scaleX;
+    item.height = target.height*target.scaleY;
     item.left = target.left;
     item.top = target.top;
     item.angle = target.angle;
-    item.scaleX = target.scaleX;
-    item.scaleY = target.scaleY;
+    item.scaleX = 1;
+    item.scaleY = 1;
     item.imageScaleX = this.state.imageScaleX;
     item.imageScaleY = this.state.imageScaleY;
     this.data.items[itemId] = item;
@@ -490,7 +496,17 @@ export default class ImageAnnotationEdit extends React.Component {
         shape.set('itemId', itemId);
         this.canvas.add(shape);
         lastId = lastId < itemId ? itemId : lastId;
+
+        if(!this.props.canEdit){
+          this.canvas.getObjects().forEach(function(o) {
+            o.set('selectable', false);
+         });
+
+        }
       }
+
+   
+
     });
 
     this.data = data;

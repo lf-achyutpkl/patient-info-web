@@ -71,7 +71,8 @@ class AnnotateEditor extends Component {
           options:[],
           noToPrefetch:5,          
           selectItemId:0,
-          value:"0"
+          value:"0",
+          canEdit:false
         }
     }
 
@@ -81,6 +82,7 @@ class AnnotateEditor extends Component {
       this._fetchData();
       this._fetchAllTags();
       this._fetchOptions();
+      this._fetchUser();
     }
 
     tabChange = (value) => {
@@ -163,6 +165,7 @@ class AnnotateEditor extends Component {
             options={this.state.options}
             add={this._add}
             remove={this._remove}
+            canEdit={this.state.canEdit}
           />
           </div>
           <div style={{width:"18%",float:"left"}}>
@@ -200,7 +203,7 @@ class AnnotateEditor extends Component {
           />
           <div id="scrollable-container"  style={{maxHeight:"440px",overflow:"auto",marginTop:"10px"}}>
           
-          <Table id="tags-list"  style={{maxHeight:"440px",overflow:"auto",marginTop:"10px"}}>
+          <Table id="tags-list" >
           <TableHeader displaySelectAll={false} adjustForCheckbox={false}>
             <TableRow>
               <TableHeaderColumn>Images</TableHeaderColumn>
@@ -221,8 +224,8 @@ class AnnotateEditor extends Component {
 
           </TabContainer>}
           {this.state.value === "1" && <TabContainer>
-
-          <Table id="annotation-list"  style={{maxHeight:"440px",overflow:"auto",marginTop:"10px"}}>
+          <div className="annotation-container"  style={{maxHeight:"440px",overflow:"auto",marginTop:"10px"}}>
+          <Table id="annotation-list" >
           <TableHeader displaySelectAll={false} adjustForCheckbox={false}>
             <TableRow>
               <TableHeaderColumn>Annotations</TableHeaderColumn>
@@ -243,7 +246,7 @@ class AnnotateEditor extends Component {
             }
           </TableBody>
         </Table>
-
+            </div>
           </TabContainer>}
         </div>
 
@@ -431,6 +434,32 @@ class AnnotateEditor extends Component {
           });
           });
         });
+  }
+
+  _fetchUser = () => { 
+    let userId=0;
+    if(this.props.route.loggedUser){
+      userId=this.props.route.loggedUser && this.props.route.loggedUser.id;
+    }else{
+      userId=this._getLoggedUser().id;
+    } 
+    let url = uri.users+'/'+userId; 
+    get(url)
+    .then(response => {
+      let canEdit = false;
+      response.data.batches.forEach((batch)=>{
+        if(batch.id == this.props.location.query.batchId){
+          canEdit =true;
+        }
+      })      
+      this.setState({canEdit: canEdit});       
+
+      });
+   }
+
+   _getLoggedUser(){
+    let user=localStorage.getItem(localStorageConstants.LOGGED_USER);
+    return JSON.parse(user);
   }
 
   _fetchAllTags = () => {   
