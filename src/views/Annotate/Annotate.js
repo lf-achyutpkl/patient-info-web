@@ -88,6 +88,11 @@ class AnnotateEditor extends Component {
     //   this.setState({annotationIds: queryParamIds})
     // }
 
+    shouldComponentUpdate(){
+      console.log('annotate.js should component update');
+      return true;
+    }
+
     componentDidMount(){
       let index=localStorage.getItem("currentIndex_"+this.props.location.query.batchId)? JSON.parse(localStorage.getItem("currentIndex_"+this.props.location.query.batchId)):0
       this.setState({currentIndex:index});

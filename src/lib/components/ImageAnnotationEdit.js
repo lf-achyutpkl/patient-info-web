@@ -7,6 +7,8 @@ import Polygon from '../utils/Polygon';
 import { fabric } from 'fabric';
 import { localStorageConstants } from '../../config/localStorageConstants';
 import RefreshIndicator from 'material-ui/RefreshIndicator';
+import _differenceWith from 'lodash/difference';
+import _keys from 'lodash/keys';
 
 const KEYCODE_ESC = 27;
 const KEYCODE_CTRL = 17;
@@ -16,7 +18,7 @@ export default class ImageAnnotationEdit extends React.Component {
     super(props);
 
     this.data = {
-      items: [],
+      items: {},
     };
     this.state = {
       annModal: {
@@ -69,9 +71,19 @@ export default class ImageAnnotationEdit extends React.Component {
   }
 
   componentWillReceiveProps(newProps) {
-    this.data=newProps.data;
-    this.init();
-    this.forceUpdate();
+
+    this.data = newProps.data;
+
+    // approach 1: Remove all itms from canvas and add new props data items again
+    
+    this.canvas.clear()
+    this.loadState()
+    // TODO mouse events on canvas not working, like panning. There is no effect of  canvas.on('mouse:up', function (e) {} LINE: 123
+
+
+    // this.init(); // we donot need this now
+    
+    // this.forceUpdate();
   }
 
   componentWillUnmount() {
@@ -113,6 +125,7 @@ export default class ImageAnnotationEdit extends React.Component {
     });
 
     canvas.on('mouse:down', function (e) {
+      console.log('mouse down')
         panning = true;
     });
     canvas.on('mouse:move', function (e) {
@@ -179,7 +192,7 @@ export default class ImageAnnotationEdit extends React.Component {
     this.polygon = polygon;
     this.loadState();
 
-    this.checkCanvasPosition();
+    // this.checkCanvasPosition();
   }
 
   shouldComponentUpdate(props, nextState) {
