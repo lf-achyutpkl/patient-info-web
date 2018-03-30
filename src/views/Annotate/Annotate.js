@@ -89,6 +89,10 @@ class AnnotateEditor extends Component {
       this.setState({ value });
     };
 
+    shouldComponentUpdate(){
+      return true;
+    }
+
     /**
      * ImageAnnotationEdit Props:
      * imageURL
@@ -165,6 +169,7 @@ class AnnotateEditor extends Component {
             options={this.state.options}
             add={this._add}
             remove={this._remove}
+            clearSelectedItemId={this.clearSelectedItemId}
             canEdit={this.state.canEdit}
           />
           </div>
@@ -607,6 +612,10 @@ class AnnotateEditor extends Component {
 
   _selectAnnotation=(itemId)=>{
     this.setState({selectItemId:itemId});
+  }
+
+  clearSelectedItemId=()=>{
+    this.setState({selectItemId:null});
   }
 
 };

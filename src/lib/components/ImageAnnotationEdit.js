@@ -7,6 +7,8 @@ import Polygon from '../utils/Polygon';
 import { fabric } from 'fabric';
 import { localStorageConstants } from '../../config/localStorageConstants';
 import RefreshIndicator from 'material-ui/RefreshIndicator';
+import _differenceWith from 'lodash/difference';
+import _keys from 'lodash/keys';
 
 const KEYCODE_ESC = 27;
 const KEYCODE_CTRL = 17;
@@ -16,7 +18,7 @@ export default class ImageAnnotationEdit extends React.Component {
     super(props);
 
     this.data = {
-      items: [],
+      items: {},
     };
     this.state = {
       annModal: {
@@ -72,10 +74,16 @@ export default class ImageAnnotationEdit extends React.Component {
 
   componentWillReceiveProps(newProps) {
     this.data=newProps.data;
-    this.init();
-    this.forceUpdate();
-    if(newProps.selectItemId){    
-      this.selectObject(newProps.selectItemId)
+    this.canvas.clear();
+    this.loadState();
+
+    if(newProps.selectItemId){
+      this.selectObject(newProps.selectItemId);
+    }
+
+    if (newProps.imageURL != this.props.imageURL){
+      this.props=newProps;
+      this.init();
     }
   }
 
@@ -117,13 +125,14 @@ export default class ImageAnnotationEdit extends React.Component {
       if (!itemId) return;
       this.showAnnModal(itemId);
       this.selectedItem = e.target;
+      this.selectedItemId = this.selectedItem.itemId;
     });
 
     canvas.on('mouse:over', e => {
-      let itemId = e.target.itemId;
-      if (!itemId) return;
-      this.selectedItem = e.target;
-      this.selectedItemId = itemId;
+      // let itemId = e.target.itemId;
+      // if (!itemId) return;
+      // this.selectedItem = e.target;
+      // this.selectedItemId = itemId;
     });
 
     // for image movement after zoom
@@ -198,7 +207,7 @@ export default class ImageAnnotationEdit extends React.Component {
     this.polygon = polygon;
     this.loadState();
 
-    this.checkCanvasPosition();
+    // this.checkCanvasPosition();
   }
 
   shouldComponentUpdate(props, nextState) {
@@ -292,6 +301,7 @@ export default class ImageAnnotationEdit extends React.Component {
   }
 
   showAnnModal(itemId) {
+   
     let selectedItemId = itemId;
     this.selectedItemId = selectedItemId;
 
@@ -313,6 +323,8 @@ export default class ImageAnnotationEdit extends React.Component {
           this.setState({useShortcutKey:false});
         }
       });
+      
+    this.props.clearSelectedItemId();  
   }
 
   showAnnCreateModal({ top, left, height }) {
@@ -335,7 +347,8 @@ export default class ImageAnnotationEdit extends React.Component {
   }
 
   saveAnn(option) {
-       return () => {
+    
+      return () => {
       if (!this.selectedItemId) return;
       let item = this.data.items[this.selectedItemId];
       if (!item) return;
@@ -411,8 +424,7 @@ export default class ImageAnnotationEdit extends React.Component {
     }
   }
 
-  addItem(item) {
-    this.setState({hasChanged:true});    
+  addItem(item) {    
     item.imageScaleX = this.state.imageScaleX;
     item.imageScaleY = this.state.imageScaleY;
     localStorage.setItem('viewportTransform', JSON.stringify(this.canvas.viewportTransform));

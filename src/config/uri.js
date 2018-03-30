@@ -1,4 +1,5 @@
-export const baseUrl = 'http://localhost:8848/';
+// export const baseUrl = 'http://localhost:8848/';
+export const baseUrl = 'http://annotate.wiseyak.com/';
 export const contextName = 'api/';
 export const apiUrl = `${baseUrl}${contextName}`;
 
