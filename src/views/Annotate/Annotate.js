@@ -167,9 +167,8 @@ class AnnotateEditor extends Component {
             data={this.state.data}
             selectItemId={this.state.selectItemId}
             options={this.state.options}
-            add={this._add}
-            remove={this._remove}
-            clearSelectedItemId={this.clearSelectedItemId}
+            // add={this._add}
+            // remove={this._remove}
             canEdit={this.state.canEdit}
           />
           </div>
@@ -191,17 +190,13 @@ class AnnotateEditor extends Component {
           </div>
 
         <div className="tabContainer">
-          {/* <AppBar position="static"> */}
             <Tabs value={this.state.value} onChange={this.tabChange}>
               <Tab value="0" label="Images" />
               <Tab value="1" label="Annotations" />
             </Tabs>
-          {/* </AppBar> */}
           {this.state.value === "0" && <TabContainer>
 
-            {/* patient / image list block */}
-
-                      <TextField
+           <TextField
             style={{maxWidth:"200px"}}
             hintText="Filter Image"
             onChange={(e) => this._filterPatient(e)}
@@ -402,14 +397,13 @@ class AnnotateEditor extends Component {
   }
 
   _setAnnotationsIndex=(index=0)=>{
-    localStorage.removeItem('viewportTransform');
     let data = {items: {}};
     localStorage.setItem("currentIndex_"+this.props.location.query.batchId,JSON.stringify(index)); 
       this._prefetchImage(); 
       if(this.state.annotations[index].annotationInfo != null && this.state.annotations[index].annotationInfo != ""){
         data = JSON.parse(this.state.annotations[index].annotationInfo); 
       }
-      this.setState({data,currentIndex:index},()=>{
+      this.setState({data,currentIndex:index,selectItemId:0},()=>{
         let selectedCodes=this._fetchSelectedCodeFromAnnotationInfo();
         this._resetDiagnosisList(selectedCodes);        
       });
@@ -451,14 +445,11 @@ class AnnotateEditor extends Component {
     let url = uri.users+'/'+userId; 
     get(url)
     .then(response => {
-      let canEdit = false;
       response.data.batches.forEach((batch)=>{
         if(batch.id == this.props.location.query.batchId){
-          canEdit =true;
+          this.setState({canEdit: true});  
         }
-      })      
-      this.setState({canEdit: canEdit});       
-
+      })  
       });
    }
 
@@ -526,7 +517,6 @@ class AnnotateEditor extends Component {
     }
   });
 
-  this.setState({data},()=>{
     let diagnosisTree=[];
     let diagnosisList=this.state.diagnosisList?this.state.diagnosisList:[];
     diagnosisList.forEach(element => {
@@ -550,8 +540,7 @@ class AnnotateEditor extends Component {
       }
       
     });
-    this.setState({ diagnosisDropdownTree: diagnosisTree });
-  });
+    this.setState({ diagnosisDropdownTree: diagnosisTree,data });
  
 }
 
@@ -614,9 +603,6 @@ class AnnotateEditor extends Component {
     this.setState({selectItemId:itemId});
   }
 
-  clearSelectedItemId=()=>{
-    this.setState({selectItemId:null});
-  }
 
 };
 

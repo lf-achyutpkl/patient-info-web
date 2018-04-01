@@ -21,7 +21,7 @@ import {get,post,put} from '../../utils/httpUtils';
 import AutoComplete from 'material-ui/AutoComplete';
 import ReactImageMagnify from 'react-image-magnify';
 import Chip from 'material-ui/Chip';
-import {CSVLink, CSVDownload} from 'react-csv';
+import {CSVLink} from 'react-csv';
 
 class Annotations extends Component{
 
