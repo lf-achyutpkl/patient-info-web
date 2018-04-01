@@ -120,6 +120,44 @@ export default class ImageAnnotationEdit extends React.Component {
     }
     img.src = this.props.imageURL;
 
+    this.initializeCanvasEvents(canvas);
+
+    let showAnnCreateModal = this.showAnnCreateModal;
+
+    let rectangle = new Rectangle({
+      canvas,
+      showAnnCreateModal,
+    });
+    let circle = new Circle({
+      canvas,
+      showAnnCreateModal,
+    });
+    let polygon = new Polygon({
+      canvas,
+      showAnnCreateModal,
+    });
+
+    rectangle.init({
+      afterDraw: this.addItem,
+    });
+
+    circle.init({
+      afterDraw: this.addItem,
+    });
+    polygon.init({
+      afterDraw: this.addItem,
+    });
+
+    this.canvas = canvas;
+    this.rectangle = rectangle;
+    this.circle = circle;
+    this.polygon = polygon;
+    this.loadState();
+  }
+
+
+  initializeCanvasEvents(canvas){
+    let panning = false;
     canvas.observe('object:selected', e => {
       let itemId = e.target.itemId;
       if (!itemId) return;
@@ -137,7 +175,7 @@ export default class ImageAnnotationEdit extends React.Component {
 
     // for image movement after zoom
     canvas.on('mouse:up', function (e) {
-        panning = false;
+        panning = false;        
     });
 
     canvas.on('mouse:down', function (e) {
@@ -174,37 +212,6 @@ export default class ImageAnnotationEdit extends React.Component {
       this.updateItem(itemId, e);
     });
 
-    let showAnnCreateModal = this.showAnnCreateModal;
-
-    let rectangle = new Rectangle({
-      canvas,
-      showAnnCreateModal,
-    });
-    let circle = new Circle({
-      canvas,
-      showAnnCreateModal,
-    });
-    let polygon = new Polygon({
-      canvas,
-      showAnnCreateModal,
-    });
-
-    rectangle.init({
-      afterDraw: this.addItem,
-    });
-
-    circle.init({
-      afterDraw: this.addItem,
-    });
-    polygon.init({
-      afterDraw: this.addItem,
-    });
-
-    this.canvas = canvas;
-    this.rectangle = rectangle;
-    this.circle = circle;
-    this.polygon = polygon;
-    this.loadState();
   }
 
   shouldComponentUpdate(props, nextState) {
@@ -216,6 +223,7 @@ export default class ImageAnnotationEdit extends React.Component {
     this.polygon.clean();
     this.circle.clean();
     this.rectangle.clean();
+    this.initializeCanvasEvents(this.canvas);
   }
 
   enableDrawRect() {       
@@ -301,8 +309,8 @@ export default class ImageAnnotationEdit extends React.Component {
     annModal.text = '';
     annModal.display = 'none';
     annModal.searchText = '';
-    this.setState({ annModal });
-    this.clean();
+    this.setState({ annModal });  
+    this.clean();   
   }
 
   showAnnModal(itemId) {
@@ -432,8 +440,8 @@ export default class ImageAnnotationEdit extends React.Component {
     let target = e.target;
     if (!target) return;
 
-    let item = { ...this.data.items[itemId] };
-
+    let item = { ...this.data.items[itemId] }
+    item.radius = target.radius*target.scaleX;
     item.width = target.width*target.scaleX;
     item.height = target.height*target.scaleY;
     item.left = target.left;
