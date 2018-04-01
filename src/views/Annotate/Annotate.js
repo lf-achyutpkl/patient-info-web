@@ -173,7 +173,7 @@ class AnnotateEditor extends Component {
           />
           </div>
           <div style={{width:"18%",float:"left"}}>
-          <DropdownTreeSelect className="tree-dropdown" data={this.state.diagnosisDropdownTree} onChange={this._onDiagnosisChange} />
+          <DropdownTreeSelect disabled className="tree-dropdown" data={this.state.diagnosisDropdownTree} onChange={this._onDiagnosisChange} />
           <div>
             {this.state.annotations[this.state.currentIndex].tags.length > 0 &&
               <label>Tags : </label>
@@ -521,14 +521,14 @@ class AnnotateEditor extends Component {
     let diagnosisList=this.state.diagnosisList?this.state.diagnosisList:[];
     diagnosisList.forEach(element => {
       if(element.parentId===0){
-        let parent={label:element.displayLabel,value:element.value,checked:selectedCodes.includes(element.value),expanded:true};
+        let parent={label:element.displayLabel,value:element.value,checked:selectedCodes.includes(element.value),expanded:true,disabled:this.state.canEdit?false:true};
         if(parent.checked){
           setTimeout(()=>{ this._addWholeImageAnnotation(parent); }, 1000);          
         }
         let childrens=[];
         diagnosisList.forEach((children)=>{
                       if(children.parentId==parseInt(element.id)){
-                        let childItem={label:children.displayLabel,value:children.value,checked:selectedCodes.includes(children.value)};
+                        let childItem={label:children.displayLabel,value:children.value,checked:selectedCodes.includes(children.value),disabled:this.state.canEdit?false:true};
                         childrens.push(childItem);
                         if(childItem.checked){
                           setTimeout(()=> { this._addWholeImageAnnotation(childItem); }, 1000);
