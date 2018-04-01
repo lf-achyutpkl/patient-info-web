@@ -586,14 +586,16 @@ export default class ImageAnnotationEdit extends React.Component {
         >
           <p>{annModal.text}</p>
           <div style={{ display: 'inline-block' }}>
-            {!annModal.isEdit && (
+            {!annModal.isEdit && this.props.canEdit &&  (
               <button className="edit-button" onClick={this.enableAnnModalEdit}>
                 Edit
               </button>
             )}
+            { this.props.canEdit && (
             <button className="edit-button" onClick={this.deleteAnn}>
               Delete
             </button>
+            )}
           </div>
           {annModal.isEdit && (
             <ul>

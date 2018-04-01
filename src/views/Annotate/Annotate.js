@@ -238,7 +238,7 @@ class AnnotateEditor extends Component {
               Object.keys(this.state.data.items).map((itemId) =>{
                return this.state.data.items[itemId].type != "whole_image" ?
                   <TableRow key={itemId} style={{background:this.state.selectItemId==itemId?"rgba(224, 224, 223, 1)":""}}>
-                    <TableRowColumn><a href="javascript:void(0);" onClick={() => this._selectAnnotation(itemId)}>{`${this.state.data.items[itemId].caption}`}</a></TableRowColumn>
+                    <TableRowColumn><a href="javascript:void(0);" onClick={() => this._selectAnnotation(itemId)}>{`${this.state.canEdit?'':this.state.data.items[itemId].stroke+' - '} ${this.state.data.items[itemId].caption}`}</a></TableRowColumn>
                   </TableRow>
               :
               ""
